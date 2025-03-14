@@ -65,3 +65,177 @@ If your plugin does not need CSS, delete this file.
 	font-size: 1.2em;
 	font-weight: 600;
 }
+
+/*
+ * Settings tab styles
+ */
+
+.settings-tab-group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--size-4-4);
+}
+
+.settings-tab-list {
+	display: flex;
+	gap: var(--size-4-2);
+	border-bottom: 2px solid var(--background-modifier-border);
+	margin-bottom: var(--size-4-4);
+}
+
+.settings-tab {
+	padding: var(--size-4-2) var(--size-4-4);
+	cursor: pointer;
+	border-bottom: 2px solid transparent;
+	margin-bottom: -2px;
+	color: var(--text-muted);
+	transition: all 0.2s ease;
+}
+
+.settings-tab:hover {
+	color: var(--text-normal);
+}
+
+.settings-tab.is-active {
+	color: var(--interactive-accent);
+	border-color: var(--interactive-accent);
+}
+
+.provider-card {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	padding: var(--size-4-4);
+	background-color: var(--background-secondary);
+	margin-bottom: var(--size-4-4);
+}
+
+.provider-card h3 {
+	margin: 0 0 var(--size-4-2) 0;
+	color: var(--text-normal);
+}
+
+.provider-card p {
+	margin: 0 0 var(--size-4-4) 0;
+	color: var(--text-muted);
+}
+
+/* Modal styles */
+.yt-summarizer-modal {
+	padding: var(--size-4-6);
+}
+
+.yt-summarizer-modal__title {
+	margin-bottom: var(--size-4-4);
+	font-size: var(--font-ui-large);
+	font-weight: var(--font-medium);
+	color: var(--text-normal);
+}
+
+.yt-summarizer-modal__input {
+	width: 100%;
+	margin-bottom: var(--size-4-4);
+	padding: var(--size-4-2);
+	border-radius: var(--radius-s);
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+}
+
+.yt-summarizer-modal__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--size-4-2);
+}
+
+.yt-summarizer-modal__button {
+	padding: var(--size-4-2) var(--size-4-4);
+	border-radius: var(--radius-s);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	background-color: var(--background-modifier-border);
+	color: var(--text-normal);
+	border: none;
+	transition: all 0.2s ease;
+}
+
+.yt-summarizer-modal__button:hover {
+	background-color: var(--background-modifier-border-hover);
+}
+
+.yt-summarizer-modal__button--primary {
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.yt-summarizer-modal__button--primary:hover {
+	background-color: var(--interactive-accent-hover);
+}
+
+/* Settings styles */
+.yt-summarizer-settings__textarea {
+	width: 100%;
+	min-height: 150px;
+	font-family: var(--font-monospace);
+	padding: var(--size-4-2);
+	border-radius: var(--radius-s);
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+	resize: vertical;
+}
+
+/* Utility classes */
+.yt-summarizer-hidden {
+	display: none;
+}
+
+.yt-summarizer-flex {
+	display: flex;
+}
+
+.yt-summarizer-flex-col {
+	flex-direction: column;
+}
+
+.yt-summarizer-gap-4 {
+	gap: var(--size-4-4);
+}
+
+.yt-summarizer-mt-4 {
+	margin-top: var(--size-4-4);
+}
+
+.yt-summarizer-mb-4 {
+	margin-bottom: var(--size-4-4);
+}
+
+.settings-tab-content {
+	padding: var(--size-4-2);
+}
+
+.settings-tab-content .content {
+	display: none;
+}
+
+.settings-tab-content .content.is-active {
+	display: block;
+}
+
+.settings-tab-content .setting-item {
+	border: none;
+	padding: var(--size-4-2) 0;
+}
+
+.settings-tab-content .setting-item:not(:last-child) {
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.settings-tab-content .setting-item-info {
+	font-size: var(--font-ui-small);
+}
+
+.settings-tab-content .setting-item-control {
+	flex-wrap: wrap;
+	gap: var(--size-4-2);
+	justify-content: flex-end;
+}
