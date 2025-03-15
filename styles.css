@@ -239,3 +239,253 @@ If your plugin does not need CSS, delete this file.
 	gap: var(--size-4-2);
 	justify-content: flex-end;
 }
+
+/* Settings Tab Styles */
+
+/* Tab Layout */
+.yt-summarizer-settings__tab-group {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.yt-summarizer-settings__tab-list {
+	display: flex;
+	gap: 8px;
+	border-bottom: 2px solid var(--background-modifier-border);
+	margin-bottom: 16px;
+}
+
+.yt-summarizer-settings__tab {
+	padding: 8px 16px;
+	cursor: pointer;
+	border-bottom: 2px solid transparent;
+	margin-bottom: -2px;
+}
+
+.yt-summarizer-settings__tab.is-active {
+	border-color: var(--interactive-accent);
+	color: var(--interactive-accent);
+}
+
+/* Provider Accordions */
+.yt-summarizer-settings__provider-accordions {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin-top: 24px;
+}
+
+.yt-summarizer-settings__provider-accordion {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	background-color: var(--background-secondary);
+	overflow: hidden;
+}
+
+.yt-summarizer-settings__provider-header {
+	padding: 16px;
+	cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.yt-summarizer-settings__provider-header h3 {
+	margin: 0;
+}
+
+.yt-summarizer-settings__verified-badge {
+	font-size: 0.7em;
+	background-color: var(--color-green);
+	color: white;
+	padding: 2px 6px;
+	border-radius: 8px;
+	font-weight: bold;
+}
+
+.yt-summarizer-settings__collapse-icon {
+	transition: transform 0.3s ease;
+}
+
+.yt-summarizer-settings__collapse-icon.is-expanded {
+	transform: rotate(180deg);
+}
+
+/* Provider Content */
+.yt-summarizer-settings__provider-content {
+	padding: 16px;
+}
+
+.yt-summarizer-settings__provider-info {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.yt-summarizer-settings__provider-info .yt-summarizer-settings__verified-badge {
+	font-size: 0.8em;
+	background-color: var(--color-green);
+	color: white;
+	padding: 3px 8px;
+	border-radius: 8px;
+	font-weight: bold;
+}
+
+/* Models List */
+.yt-summarizer-settings__models-list {
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+/* Model Item */
+.yt-summarizer-settings__model-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px;
+	margin-bottom: 8px;
+	background-color: var(--background-modifier-hover);
+	border-radius: 4px;
+}
+
+.yt-summarizer-settings__model-item.is-active {
+	border: 1px solid var(--interactive-accent);
+}
+
+.yt-summarizer-settings__model-info {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.yt-summarizer-settings__status-indicator {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+}
+
+.yt-summarizer-settings__status-indicator.is-active {
+	background-color: var(--interactive-accent);
+}
+
+.yt-summarizer-settings__status-indicator.is-available {
+	background-color: var(--text-muted);
+}
+
+.yt-summarizer-settings__model-details {
+	display: flex;
+	flex-direction: column;
+}
+
+.yt-summarizer-settings__model-details .yt-summarizer-settings__display-name {
+	font-weight: bold;
+}
+
+.yt-summarizer-settings__model-actions {
+	display: flex;
+	gap: 4px;
+}
+
+.yt-summarizer-settings__clickable-icon {
+	border: none;
+	background: none;
+	padding: 4px;
+	cursor: pointer;
+}
+
+.yt-summarizer-settings__clickable-icon.delete {
+	color: var(--text-error);
+}
+
+/* Modal Styles */
+.yt-summarizer-settings__modal-content {
+	padding: 16px;
+}
+
+.yt-summarizer-settings__form-group {
+	margin-bottom: 16px;
+}
+
+.yt-summarizer-settings__form-group label {
+	display: block;
+	margin-bottom: 8px;
+}
+
+.yt-summarizer-settings__form-group input,
+.yt-summarizer-settings__form-group select {
+	width: 100%;
+}
+
+.yt-summarizer-settings__form-group input[disabled] {
+	background-color: var(--background-modifier-disabled);
+}
+
+.yt-summarizer-settings__button-container {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.yt-summarizer-settings__button-primary {
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.yt-summarizer-settings__button-danger {
+	background-color: var(--text-error);
+	color: var(--text-on-accent);
+}
+
+/* Provider Card */
+.yt-summarizer-settings__provider-card {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	padding: 16px;
+	background-color: var(--background-secondary);
+}
+
+.yt-summarizer-settings__provider-card h3 {
+	margin: 0 0 8px 0;
+}
+
+.yt-summarizer-settings__provider-card .yt-summarizer-settings__description {
+	margin: 0 0 16px 0;
+	color: var(--text-muted);
+}
+
+/* Summary Settings */
+.yt-summarizer-settings__summary-prompt textarea {
+	width: 500px;
+	height: 200px;
+}
+
+/* Button Styles */
+.yt-summarizer-settings__add-button {
+	margin-top: 12px;
+	border: none;
+	padding: 0;
+}
+
+.yt-summarizer-settings__add-provider-button {
+	margin-top: 24px;
+}
+
+/* Model Item Styles from src/settings.css */
+.yt-summarizer-settings__model-item span {
+	display: flex;
+	align-items: center;
+}
+
+.yt-summarizer-settings__model-item .yt-summarizer-settings__model-name {
+	margin-right: 8px;
+}
+
+.yt-summarizer-settings__model-item .yt-summarizer-settings__model-status {
+	color: var(--text-muted);
+}
+
+.yt-summarizer-settings__model-item .yt-summarizer-settings__model-status.yt-summarizer-settings__builtin {
+	color: var(--text-accent);
+}

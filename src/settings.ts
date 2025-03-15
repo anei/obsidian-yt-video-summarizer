@@ -1,5 +1,5 @@
-import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
-import { ModelConfig, PluginSettings, ProviderConfig } from './types';
+import { App, Notice, PluginSettingTab, Setting, Modal, setIcon } from 'obsidian';
+import { ModelConfig, PluginSettings, ProviderConfig, ProviderType } from './types';
 import { YouTubeSummarizerPlugin } from './main';
 
 /**
@@ -35,22 +35,12 @@ export class SettingsTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        const tabs = containerEl.createEl('div', { cls: 'settings-tab-group' });
-        const tabList = tabs.createEl('nav', { cls: 'settings-tab-list' });
-        const tabContent = tabs.createEl('div', { cls: 'settings-tab-content' });
+        const tabs = containerEl.createEl('div', { cls: 'yt-summarizer-settings__tab-group' });
+        const tabList = tabs.createEl('nav', { cls: 'yt-summarizer-settings__tab-list' });
+        const tabContent = tabs.createEl('div', { cls: 'yt-summarizer-settings__tab-content' });
 
-        // Add styles
-        tabs.style.display = 'flex';
-        tabs.style.flexDirection = 'column';
-        tabs.style.gap = '16px';
-
-        tabList.style.display = 'flex';
-        tabList.style.gap = '8px';
-        tabList.style.borderBottom = '2px solid var(--background-modifier-border)';
-        tabList.style.marginBottom = '16px';
-
-        const aiProvidersContent = tabContent.createDiv({ cls: 'content' });
-        const summarySettingsContent = tabContent.createDiv({ cls: 'content' });
+        const aiProvidersContent = tabContent.createDiv({ cls: 'yt-summarizer-settings__content' });
+        const summarySettingsContent = tabContent.createDiv({ cls: 'yt-summarizer-settings__content' });
 
         // Hide inactive tab content
         aiProvidersContent.style.display = this.currentTab === 'ai-providers' ? 'block' : 'none';
@@ -62,26 +52,18 @@ export class SettingsTab extends PluginSettingTab {
 
         // AI Providers Section
         this.displayAIProvidersSection(aiProvidersContent);
-
         // Summary Settings Section
         this.displaySummarySettingsSection(summarySettingsContent);
     }
 
     private createTab(tabList: HTMLElement, name: string, id: string): HTMLElement {
         const tab = tabList.createEl('div', {
-            cls: 'settings-tab',
+            cls: 'yt-summarizer-settings__tab',
             text: name
         });
 
-        // Add styles
-        tab.style.padding = '8px 16px';
-        tab.style.cursor = 'pointer';
-        tab.style.borderBottom = '2px solid transparent';
-        tab.style.marginBottom = '-2px';
-
         if (this.currentTab === id) {
-            tab.style.borderColor = 'var(--interactive-accent)';
-            tab.style.color = 'var(--interactive-accent)';
+            tab.addClass('is-active');
         }
 
         tab.addEventListener('click', () => {
@@ -99,218 +81,440 @@ export class SettingsTab extends PluginSettingTab {
         // Active Model Selection
         const availableModels = this.getAvailableModels();
         const selectedModel = this.settings.getSelectedModel();
-    
+
         new Setting(containerEl)
             .setName('Active Model')
             .setDesc('Select which model to use for generating summaries')
             .addDropdown(dropdown => {
                 const options: Record<string, string> = {};
                 availableModels.forEach(model => {
-                    options[model.id] = model.name;
+                    const displayText = model.displayName || model.name;
+                    options[model.name] = `${model.provider.name} - ${displayText}`;
                 });
-    
+
                 dropdown
                     .addOptions(options)
-                    .setValue(selectedModel?.id || '')
+                    .setValue(selectedModel?.name || '')
                     .onChange(async (value) => {
-                        const selectedModel = availableModels.find(m => m.id === value);
-                        if (selectedModel) {
-                            await this.settings.updateModel(selectedModel);
+                        try {
+                            const selectedModel = availableModels.find(m => m.name === value);
+                            if (selectedModel) {
+                                this.plugin.settings.setSelectedModel(selectedModel.name);
+                                this.display();
+                            }
+                        } catch (error) {
+                            console.error('Failed to set active model:', error, 'Selected model:', value);
+                            new Notice(`Failed to set active model: ${error.message}`);
                         }
                     });
-    
-                // Store reference to the dropdown element
+
                 this.activeModelDropdown = dropdown.selectEl;
             });
-    
+
         // Provider Accordions Container
-        const accordionsContainer = containerEl.createDiv();
-        accordionsContainer.style.display = 'flex';
-        accordionsContainer.style.flexDirection = 'column';
-        accordionsContainer.style.gap = '20px';
-        accordionsContainer.style.marginTop = '20px';
-    
-        // Create provider accordions
+        const accordionsContainer = containerEl.createDiv({ cls: 'yt-summarizer-settings__provider-accordions' });
+
+        // Create accordions for each provider
         this.settings.getProviders().forEach(provider => {
-            this.createProviderAccordion(accordionsContainer, provider);
+            const accordion = accordionsContainer.createDiv({ cls: 'yt-summarizer-settings__provider-accordion' });
+
+            // Header section
+            const header = accordion.createDiv({ cls: 'yt-summarizer-settings__provider-header' });
+            header.addEventListener('click', () => this.toggleAccordion(accordion));
+
+            // Left side of header
+            const headerInfo = header.createDiv();
+            headerInfo.addClass('yt-summarizer-settings__provider-info');
+
+            const titleEl = headerInfo.createEl('h3', { text: provider.name });
+
+            // Verified indicator
+            if (provider.verified) {
+                const verifiedBadge = headerInfo.createEl('span', { text: 'Verified', cls: 'yt-summarizer-settings__verified-badge' });
+            }
+
+            // Right side of header - collapse/expand icon
+            const iconEl = header.createDiv({ cls: 'yt-summarizer-settings__collapse-icon' });
+            setIcon(iconEl, 'chevron-down');
+
+            // Content section
+            const content = accordion.createDiv({ cls: 'yt-summarizer-settings__provider-content' });
+            content.style.display = 'none';
+
+            // API Key Setting
+            const apiKeySetting = new Setting(content)
+                .setName('API Key')
+                .setDesc(`Enter your ${provider.name} API key`)
+                .addText(text => {
+                    text
+                        .setPlaceholder('Enter API key')
+                        .setValue(provider.apiKey)
+                        .onChange(async (value) => {
+                            await this.plugin.settings.saveProviderKey(provider.name, value);
+                        });
+                    text.inputEl.type = 'password';
+                    return text;
+                });
+
+            // Add visibility toggle button
+            apiKeySetting.addExtraButton(button => {
+                button
+                    .setIcon('eye')
+                    .setTooltip('Show API key')
+                    .onClick(() => {
+                        const input = apiKeySetting.controlEl.querySelector('input');
+                        if (input) {
+                            const isPassword = input.type === 'password';
+                            input.type = isPassword ? 'text' : 'password';
+                            button.setIcon(isPassword ? 'eye-off' : 'eye');
+                            button.setTooltip(isPassword ? 'Hide API key' : 'Show API key');
+                        }
+                    });
+            });
+
+            // Add test button
+            apiKeySetting.addButton(button =>
+                button
+                    .setButtonText('Test')
+                    .setCta()
+                    .onClick(() => this.testApiKey(provider))
+            );
+
+            // Models section
+            const modelsSection = content.createDiv();
+            const modelsHeader = modelsSection.createEl('h4', { text: 'Models' });
+            modelsHeader.style.marginTop = '24px';
+            modelsHeader.style.marginBottom = '12px';
+
+            // Models list
+            const modelsList = modelsSection.createDiv({ cls: 'yt-summarizer-settings__models-list' });
+
+            // Add models
+            provider.models?.forEach(model => {
+                // Создаем глубокую копию модели перед передачей в createModelItem
+                const modelCopy = {
+                    name: model.name,
+                    displayName: model.displayName,
+                    provider: {
+                        name: provider.name,
+                        type: provider.type,
+                        apiKey: provider.apiKey,
+                        url: provider.url,
+                        verified: provider.verified
+                    }
+                };
+                this.createModelItem(modelsList, modelCopy);
+            });
+
+            // Add Model button
+            const addModelButton = new Setting(modelsSection)
+                .addButton(button =>
+                    button
+                        .setButtonText('Add Model')
+                        .setCta()
+                        .onClick(() => this.addModel(provider))
+                );
+            addModelButton.settingEl.addClass('yt-summarizer-settings__add-button');
         });
-    
-        // Add Provider Button
-        new Setting(containerEl)
+
+        // Add Provider button at the bottom
+        const addProviderButton = new Setting(containerEl)
+            .setName('Add New Provider')
+            .setDesc('Add a custom AI provider')
             .addButton(button =>
                 button
                     .setButtonText('Add Provider')
                     .setCta()
                     .onClick(() => this.addProvider())
             );
+        addProviderButton.settingEl.addClass('yt-summarizer-settings__add-provider-button');
     }
-    
-    private createProviderAccordion(container: HTMLElement, provider: ProviderConfig): void {
-        const accordion = container.createDiv({ cls: 'provider-accordion' });
-        accordion.style.border = '1px solid var(--background-modifier-border)';
-        accordion.style.borderRadius = '8px';
-        accordion.style.padding = '16px';
-        accordion.style.backgroundColor = 'var(--background-secondary)';
-        accordion.style.position = 'relative';
-    
-        // Provider Title
-        const titleEl = accordion.createEl('h3', { text: provider.name });
-        titleEl.style.margin = '0 0 8px 0';
-        titleEl.style.cursor = 'pointer';
-        titleEl.addEventListener('click', () => this.toggleAccordion(accordion));
-    
-        // Provider Description
-        const descEl = accordion.createEl('p', { text: this.getProviderDescription(provider.type) });
-        descEl.style.margin = '0 0 16px 0';
-        descEl.style.color = 'var(--text-muted)';
-    
-        // Models List Container
-        const modelsContainer = accordion.createDiv({ cls: 'models-list' });
-        modelsContainer.style.display = 'none';
-        modelsContainer.style.maxHeight = '200px';
-        modelsContainer.style.overflowY = 'auto';
-        modelsContainer.style.marginTop = '16px';
-    
-        // Create models list
-        provider.models?.forEach(model => {
-            this.createModelItem(modelsContainer, model);
-        });
-    
-        // Add Model Button
-        new Setting(modelsContainer)
-            .addButton(button =>
-                button
-                    .setButtonText('Add Model')
-                    .setCta()
-                    .onClick(() => this.addModel(provider))
-            );
-    
-        // API Key Setting
-        const setting = new Setting(accordion)
-            .setName('API Key')
-            .setDesc(`Enter your ${provider.name} API key`)
-            .addText(text => {
-                text
-                    .setPlaceholder('Enter API key')
-                    .setValue(provider.apiKey)
-                    .onChange(async (value) => {
-                        await this.plugin.settings.saveProviderKey(provider.name, value);
-                    });
-    
-                // Set input type to password
-                text.inputEl.type = 'password';
-                return text;
-            });
-    
-        // Add visibility toggle button
-        setting.addExtraButton(button => {
-            button
-                .setIcon('eye')
-                .setTooltip('Show API key')
-                .onClick(() => {
-                    const input = setting.controlEl.querySelector('input');
-                    if (input) {
-                        const isPassword = input.type === 'password';
-                        input.type = isPassword ? 'text' : 'password';
-                        button.setIcon(isPassword ? 'eye-off' : 'eye');
-                        button.setTooltip(isPassword ? 'Hide API key' : 'Show API key');
-                    }
-                });
-        });
-    
-        // Add test button
-        setting.addButton(button =>
-            button
-                .setButtonText('Test')
-                .setCta()
-                .onClick(() => this.testApiKey(provider))
-        );
-    }
-    
+
     private createModelItem(container: HTMLElement, model: ModelConfig): void {
-        const modelItem = container.createDiv({ cls: 'model-item' });
-        modelItem.style.display = 'flex';
-        modelItem.style.justifyContent = 'space-between';
-        modelItem.style.alignItems = 'center';
-        modelItem.style.marginBottom = '8px';
-    
-        // Model Name and Status
-        const nameStatusEl = modelItem.createEl('span');
-        nameStatusEl.style.display = 'flex';
-        nameStatusEl.style.alignItems = 'center';
-    
-        const nameEl = nameStatusEl.createEl('span', { text: model.name });
-        nameEl.style.marginRight = '8px';
-    
-        const statusEl = nameStatusEl.createEl('span', { text: model.builtIn ? 'Built-in' : 'Custom' });
-        statusEl.style.color = model.builtIn ? 'var(--text-accent)' : 'var(--text-muted)';
-    
-        // Edit and Delete Buttons
-        const actionsEl = modelItem.createDiv({ cls: 'model-actions' });
-        actionsEl.style.display = 'flex';
-        actionsEl.style.gap = '4px';
-    
-        // Edit Button
-        new Setting(actionsEl)
-            .addButton(button =>
-                button
-                    .setIcon('pencil')
-                    .setTooltip('Edit Model')
-                    .onClick(() => this.editModel(model))
-            );
-    
-        // Delete Button
-        new Setting(actionsEl)
-            .addButton(button =>
-                button
-                    .setIcon('trash')
-                    .setTooltip('Delete Model')
-                    .onClick(() => this.deleteModel(model))
-            );
+        const modelItem = container.createDiv({ cls: 'setting-item' });
+
+        // Info container (left side)
+        const info = modelItem.createDiv({ cls: 'setting-item-info' });
+
+        // Status indicator and name in the title
+        const title = info.createDiv({ cls: 'setting-item-name' });
+        title.createSpan({ text: model.displayName || model.name });
+
+        // Control container (right side)
+        const control = modelItem.createDiv({ cls: 'setting-item-control' });
+
+        // Edit button
+        const editButton = control.createEl('button', {
+            cls: 'clickable-icon',
+            attr: { 'aria-label': 'Edit model' }
+        });
+        setIcon(editButton, 'pencil');
+        editButton.addEventListener('click', () => this.editModel({
+            name: model.name,
+            displayName: model.displayName,
+            providerName: model.provider.name
+        }));
+
+        // Delete button
+        const deleteButton = control.createEl('button', {
+            cls: 'clickable-icon',
+            attr: { 'aria-label': 'Delete model' }
+        });
+        setIcon(deleteButton, 'trash');
+        deleteButton.addEventListener('click', () => this.deleteModel({
+            name: model.name,
+            displayName: model.displayName,
+            provider: {
+                name: model.provider.name,
+                type: model.provider.type,
+                apiKey: model.provider.apiKey,
+                url: model.provider.url,
+                verified: model.provider.verified
+            }
+        }));
     }
-    
+
     private toggleAccordion(accordion: HTMLElement): void {
-        const modelsList = accordion.querySelector('.models-list') as HTMLElement | null;
-        if (modelsList) {
-            modelsList.style.display = modelsList.style.display === 'none' ? 'block' : 'none';
+        const content = accordion.querySelector('.yt-summarizer-settings__provider-content') as HTMLElement;
+        const icon = accordion.querySelector('.yt-summarizer-settings__collapse-icon') as HTMLElement;
+
+        if (!content || !icon) return;
+
+        const isExpanded = content.style.display !== 'none';
+
+        // Toggle icon class
+        if (isExpanded) {
+            icon.removeClass('is-expanded');
+        } else {
+            icon.addClass('is-expanded');
         }
+
+        // Toggle content
+        content.style.display = isExpanded ? 'none' : 'block';
+
+        // Update all other accordions
+        const allAccordions = document.querySelectorAll('.yt-summarizer-settings__provider-accordion');
+        allAccordions.forEach(otherAccordion => {
+            if (otherAccordion !== accordion) {
+                const otherContent = otherAccordion.querySelector('.yt-summarizer-settings__provider-content') as HTMLElement;
+                const otherIcon = otherAccordion.querySelector('.yt-summarizer-settings__collapse-icon') as HTMLElement;
+                if (otherContent) {
+                    otherContent.style.display = 'none';
+                }
+                if (otherIcon) {
+                    otherIcon.removeClass('is-expanded');
+                }
+            }
+        });
     }
-    
+
     private addProvider(): void {
-        // Implement logic to add a new provider
-        new Notice('Add Provider functionality not yet implemented');
+        const modal = new Modal(this.app);
+        modal.titleEl.setText('Add Provider');
+        modal.contentEl.addClass('yt-summarizer-settings__modal-content');
+
+        // Provider Name
+        const nameContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__form-group' });
+        const nameLabel = nameContainer.createEl('label', { text: 'Provider Name:' });
+        const nameInput = nameContainer.createEl('input');
+        nameInput.type = 'text';
+
+        // Provider Type
+        const typeContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__form-group' });
+        const typeLabel = typeContainer.createEl('label', { text: 'Provider Type:' });
+        const typeSelect = typeContainer.createEl('select');
+
+        // Add provider type options
+        ['openai', 'anthropic', 'gemini'].forEach(type => {
+            const option = typeSelect.createEl('option', { value: type, text: type });
+        });
+
+        // API Key
+        const apiKeyContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__form-group' });
+        const apiKeyLabel = apiKeyContainer.createEl('label', { text: 'API Key:' });
+        const apiKeyInput = apiKeyContainer.createEl('input');
+        apiKeyInput.type = 'password';
+
+        // Custom URL (Optional)
+        const urlContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__form-group' });
+        const urlLabel = urlContainer.createEl('label', { text: 'Custom URL (Optional):' });
+        const urlInput = urlContainer.createEl('input');
+        urlInput.type = 'text';
+
+        // Buttons
+        const buttonContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__button-container' });
+
+        const cancelButton = buttonContainer.createEl('button', { text: 'Cancel' });
+        cancelButton.addEventListener('click', () => modal.close());
+
+        const saveButton = buttonContainer.createEl('button', { text: 'Save', cls: 'yt-summarizer-settings__button-primary' });
+        saveButton.addEventListener('click', async () => {
+            const newProvider: ProviderConfig = {
+                name: nameInput.value,
+                type: typeSelect.value as ProviderType,
+                apiKey: apiKeyInput.value,
+                url: urlInput.value || undefined,
+                verified: false,
+                models: []
+            };
+
+            try {
+                this.settings.addProvider(newProvider);
+                await this.testApiKey(newProvider);
+                modal.close();
+                this.display();
+            } catch (error) {
+                new Notice(`Failed to add provider: ${error.message}`);
+            }
+        });
+
+        modal.open();
     }
-    
+
     private addModel(provider: ProviderConfig): void {
-        // Implement logic to add a new model
-        new Notice('Add Model functionality not yet implemented');
+        const modal = new Modal(this.app);
+        modal.titleEl.setText('Add Model');
+        modal.contentEl.addClass('yt-summarizer-settings__modal-content');
+
+        // Model Name (required)
+        const nameContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__form-group' });
+        const nameLabel = nameContainer.createEl('label', { text: 'Model Name:' });
+        const nameInput = nameContainer.createEl('input');
+        nameInput.type = 'text';
+
+        // Display Name (optional)
+        const displayNameContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__form-group' });
+        const displayNameLabel = displayNameContainer.createEl('label', { text: 'Display Name (Optional):' });
+        const displayNameInput = displayNameContainer.createEl('input');
+        displayNameInput.type = 'text';
+
+        // Buttons
+        const buttonContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__button-container' });
+
+        const cancelButton = buttonContainer.createEl('button', { text: 'Cancel' });
+        cancelButton.addEventListener('click', () => modal.close());
+
+        const saveButton = buttonContainer.createEl('button', { text: 'Save', cls: 'yt-summarizer-settings__button-primary' });
+        saveButton.addEventListener('click', () => {
+            const newModel: ModelConfig = {
+                name: nameInput.value,
+                displayName: displayNameInput.value || undefined,
+                provider: {
+                    name: provider.name,
+                    type: provider.type,
+                    apiKey: provider.apiKey,
+                    url: provider.url,
+                    verified: provider.verified
+                }
+            };
+
+            try {
+                this.settings.addModel(newModel);
+                modal.close();
+                this.display();
+            } catch (error) {
+                new Notice(`Failed to add model: ${error.message}`);
+            }
+        });
+
+        modal.open();
     }
-    
+
     private editModel(model: ModelConfig): void {
-        // Implement logic to edit a model
-        new Notice('Edit Model functionality not yet implemented');
+        const modal = new Modal(this.app);
+        modal.titleEl.setText('Edit Model');
+        modal.contentEl.addClass('yt-summarizer-settings__modal-content');
+
+        // Model Name (read-only)
+        const nameContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__form-group' });
+        const nameLabel = nameContainer.createEl('label', { text: 'Model Name:' });
+        const nameInput = nameContainer.createEl('input');
+        nameInput.type = 'text';
+        nameInput.value = model.name;
+        nameInput.disabled = true; // Name should not be editable
+
+        // Display Name
+        const displayNameContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__form-group' });
+        const displayNameLabel = displayNameContainer.createEl('label', { text: 'Display Name (Optional):' });
+        const displayNameInput = displayNameContainer.createEl('input');
+        displayNameInput.type = 'text';
+        displayNameInput.value = model.displayName || '';
+
+        // Buttons
+        const buttonContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__button-container' });
+
+        const cancelButton = buttonContainer.createEl('button', { text: 'Cancel' });
+        cancelButton.addEventListener('click', () => modal.close());
+
+        const saveButton = buttonContainer.createEl('button', { text: 'Save', cls: 'yt-summarizer-settings__button-primary' });
+        saveButton.addEventListener('click', () => {
+            const updatedModel: ModelConfig = {
+                name: model.name,
+                displayName: displayNameInput.value || undefined,
+                provider: {
+                    name: model.provider.name,
+                    type: model.provider.type,
+                    apiKey: model.provider.apiKey,
+                    url: model.provider.url,
+                    verified: model.provider.verified
+                }
+            };
+
+            try {
+                this.settings.updateModel(updatedModel);
+                modal.close();
+                this.display();
+            } catch (error) {
+                new Notice(`Failed to update model: ${error.message}`);
+            }
+        });
+
+        modal.open();
     }
-    
+
     private deleteModel(model: ModelConfig): void {
-        // Implement logic to delete a model
-        new Notice('Delete Model functionality not yet implemented');
+        console.log('Delete model called with:', model);
+
+        const modal = new Modal(this.app);
+        modal.titleEl.setText('Delete Model');
+        modal.contentEl.addClass('yt-summarizer-settings__modal-content');
+
+        const displayName = model.displayName || model.name;
+        const messageEl = modal.contentEl.createEl('p', {
+            text: `Are you sure you want to delete the model "${displayName}"?`
+        });
+        messageEl.style.marginBottom = '16px';
+
+        // Buttons
+        const buttonContainer = modal.contentEl.createDiv({ cls: 'yt-summarizer-settings__button-container' });
+
+        const cancelButton = buttonContainer.createEl('button', { text: 'Cancel' });
+        cancelButton.addEventListener('click', () => modal.close());
+
+        const deleteButton = buttonContainer.createEl('button', { text: 'Delete', cls: 'yt-summarizer-settings__button-danger' });
+        deleteButton.addEventListener('click', () => {
+            try {
+                console.log('Attempting to delete model:', model);
+                this.settings.deleteModel(model);
+                modal.close();
+                this.display();
+            } catch (error) {
+                console.error('Error deleting model:', error);
+                new Notice(`Failed to delete model: ${error.message}`);
+            }
+        });
+
+        modal.open();
     }
 
     private createProviderCard(container: HTMLElement, provider: ProviderConfig): void {
-        const card = container.createDiv();
-        card.style.border = '1px solid var(--background-modifier-border)';
-        card.style.borderRadius = '8px';
-        card.style.padding = '16px';
-        card.style.backgroundColor = 'var(--background-secondary)';
+        const card = container.createDiv({ cls: 'yt-summarizer-settings__provider-card' });
 
         // Provider Title
         const titleEl = card.createEl('h3', { text: provider.name });
-        titleEl.style.margin = '0 0 8px 0';
 
         // Provider Description
-        const descEl = card.createEl('p', { text: this.getProviderDescription(provider.type) });
-        descEl.style.margin = '0 0 16px 0';
-        descEl.style.color = 'var(--text-muted)';
+        const descEl = card.createEl('p', { text: this.getProviderDescription(provider.type), cls: 'yt-summarizer-settings__description' });
 
         // API Key Setting
         const setting = new Setting(card)
@@ -367,8 +571,7 @@ export class SettingsTab extends PluginSettingTab {
                         await this.settings.updateCustomPrompt(value);
                     })
                     .then(textArea => {
-                        textArea.inputEl.style.width = '500px';
-                        textArea.inputEl.style.height = '200px';
+                        textArea.inputEl.addClass('yt-summarizer-settings__summary-prompt');
                     })
             );
 
@@ -402,13 +605,13 @@ export class SettingsTab extends PluginSettingTab {
     private getProviderDescription(type: string): string {
         switch (type) {
             case 'gemini':
-                return 'Configure Google Gemini API settings';
+                return 'Google Gemini AI - Advanced language model for text generation and analysis';
             case 'openai':
-                return 'Configure OpenAI API settings';
+                return 'OpenAI GPT - State-of-the-art language model for natural text generation';
             case 'anthropic':
-                return 'Configure Anthropic Claude API settings';
+                return 'Anthropic Claude - Advanced AI model focused on safe and helpful interactions';
             default:
-                return 'Configure API settings';
+                return 'Custom AI provider configuration';
         }
     }
 }
