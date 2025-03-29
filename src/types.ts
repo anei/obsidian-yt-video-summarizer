@@ -22,8 +22,8 @@ export interface ModelConfig {
 
 /** Stored model configuration without provider reference */
 export interface StoredModel {
-    id: string;
     name: string;
+    displayName: string;
 }
 
 /** Stored provider configuration with associated models */
@@ -34,7 +34,7 @@ export interface StoredProvider extends BaseProvider {
 /** Stored settings configuration */
 export interface StoredSettings {
     providers: StoredProvider[];
-    selectedModelId: string | null;
+    selectedModelId: string | null; // "Provider:Model"
     customPrompt: string;
     maxTokens: number;
     temperature: number;
@@ -46,7 +46,7 @@ export interface PluginSettings {
     getSelectedModel(): ModelConfig | null;
 
     /** Sets the currently selected model by name */
-    setSelectedModel(modelName: string): void;
+    setSelectedModel(modelId: string): void;
 
     /** Gets all available providers */
     getProviders(): ProviderConfig[];
@@ -73,13 +73,13 @@ export interface PluginSettings {
     updateProvider(provider: ProviderConfig): void;
 
     /** Updates an existing model */
-    updateModel(model: ModelConfig): void;
+    updateModel(modelName: string, modelDisplayName: string, providerName: string): void;
 
     /** Deletes a provider if it has no associated models */
     deleteProvider(provider: ProviderConfig): void;
 
     /** Deletes a model */
-    deleteModel(model: ModelConfig): void;
+    deleteModel(providerName: string, modelName: string): void;
 
     /** Updates the custom prompt template */
     updateCustomPrompt(prompt: string): void;

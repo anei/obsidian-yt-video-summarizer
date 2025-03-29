@@ -89,7 +89,7 @@ export class SettingsTab extends PluginSettingTab {
                 const options: Record<string, string> = {};
                 availableModels.forEach(model => {
                     const displayText = model.displayName || model.name;
-                    options[model.name] = `${model.provider.name} - ${displayText}`;
+                    options[model.name] = `${model.provider.name} / ${displayText}`;
                 });
 
                 dropdown
@@ -252,7 +252,7 @@ export class SettingsTab extends PluginSettingTab {
         editButton.addEventListener('click', () => this.editModel({
             name: model.name,
             displayName: model.displayName,
-            providerName: model.provider.name
+            provider: model.provider
         }));
 
         // Delete button
@@ -461,7 +461,7 @@ export class SettingsTab extends PluginSettingTab {
             };
 
             try {
-                this.settings.updateModel(updatedModel);
+                this.settings.updateModel(updatedModel.name, updatedModel.displayName || updatedModel.name, updatedModel.provider.name);
                 modal.close();
                 this.display();
             } catch (error) {
@@ -495,7 +495,7 @@ export class SettingsTab extends PluginSettingTab {
         deleteButton.addEventListener('click', () => {
             try {
                 console.log('Attempting to delete model:', model);
-                this.settings.deleteModel(model);
+                this.settings.deleteModel(model.name, model.provider.name);
                 modal.close();
                 this.display();
             } catch (error) {

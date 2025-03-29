@@ -2,7 +2,6 @@ import { Editor, MarkdownView, Notice, Plugin } from 'obsidian';
 import { PluginSettings, TranscriptResponse } from './types';
 
 import { SettingsTab } from './settings';
-import { StorageService } from './services/storage';
 import { YouTubeService } from './services/youtube';
 import { YouTubeURLModal } from './modals/youtube-url';
 import { PromptService } from './services/prompt';
@@ -17,7 +16,6 @@ import { AIModelProvider } from './types';
  */
 export class YouTubeSummarizerPlugin extends Plugin {
 	settings: PluginSettings;
-	private storageService: StorageService;
 	private youtubeService: YouTubeService;
 	private promptService: PromptService;
 	private provider: AIModelProvider | null = null;
@@ -48,15 +46,11 @@ export class YouTubeSummarizerPlugin extends Plugin {
 	 * @throws {Error} Throws an error if the services cannot be initialized.
 	 */
 	private async initializeServices(): Promise<void> {
-		// Initialize storage service
-		this.storageService = new StorageService(this);
-		await this.storageService.loadData();
+		// Initialize settings manager
+		this.settings = new SettingsManager(this);
 
 		// Initialize youtube service
 		this.youtubeService = new YouTubeService();
-
-		// Initialize settings manager
-		this.settings = new SettingsManager(this);
 
 		// Initialize prompt service
 		this.promptService = new PromptService(this.settings.getCustomPrompt());
@@ -124,24 +118,6 @@ export class YouTubeSummarizerPlugin extends Plugin {
 				}
 			},
 		});
-	}
-
-	/**
-	 * Updates the plugin settings.
-	 * This method updates the settings in the storage service and reinitializes the Gemini service.
-	 * @param settings The new settings to be applied.
-	 * @returns {Promise<void>} A promise that resolves when the settings are updated.
-	 */
-	async updateSettings(settings: Partial<PluginSettings>): Promise<void> {
-		// Update settings in storage service
-		await this.storageService.updateSettings(settings);
-
-		// Reinitialize services with new settings
-		const selectedModel = this.settings.getSelectedModel();
-		if (selectedModel) {
-			this.provider = ProvidersFactory.createProvider(selectedModel);
-		}
-		this.promptService = new PromptService(this.settings.getCustomPrompt());
 	}
 
 	/**
