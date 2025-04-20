@@ -1,6 +1,6 @@
 import { App, Notice, PluginSettingTab, Setting, Modal, setIcon } from 'obsidian';
-import { ModelConfig, PluginSettings, ProviderConfig, ProviderType } from './types';
-import { YouTubeSummarizerPlugin } from './main';
+import { ModelConfig, PluginSettings, ProviderConfig, ProviderType } from '../types';
+import { YouTubeSummarizerPlugin } from '../main';
 
 /**
  * Represents the settings tab for the YouTube Summarizer Plugin.
@@ -472,6 +472,13 @@ export class SettingsTab extends PluginSettingTab {
         modal.open();
     }
 
+    /**
+     * Displays a confirmation modal and handles the deletion of a model.
+     * This method shows a confirmation dialog to the user and, if confirmed,
+     * removes the model from the provider's list of models.
+     * 
+     * @param model - The model configuration to delete
+     */
     private deleteModel(model: ModelConfig): void {
         console.log('Delete model called with:', model);
 
@@ -495,7 +502,7 @@ export class SettingsTab extends PluginSettingTab {
         deleteButton.addEventListener('click', () => {
             try {
                 console.log('Attempting to delete model:', model);
-                this.settings.deleteModel(model.name, model.provider.name);
+                this.settings.deleteModel(model.provider.name, model.name);
                 modal.close();
                 this.display();
             } catch (error) {

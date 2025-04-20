@@ -1,9 +1,9 @@
 import { Editor, MarkdownView, Notice, Plugin } from 'obsidian';
 import { PluginSettings, TranscriptResponse } from './types';
 
-import { SettingsTab } from './settings';
+import { SettingsTab } from './ui/settings';
 import { YouTubeService } from './services/youtube';
-import { YouTubeURLModal } from './modals/youtube-url';
+import { YouTubeURLModal } from './ui/modals/youtube-url';
 import { PromptService } from './services/prompt';
 import { SettingsManager } from './services/settingsManager';
 import { ProvidersFactory } from './services/providers/providersFactory';
