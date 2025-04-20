@@ -174,7 +174,10 @@ export class SettingsManager implements PluginSettings {
             throw new Error('Provider not found');
         }
 
-        const index = provider.models.findIndex(m => m.name === modelName);
+        const model = provider.models.find(m => m.name === modelName);
+        if (!model) {
+            throw new Error('Model not found');
+        }
 
         const storedModel: StoredModel = {
             name: modelName,
@@ -185,7 +188,8 @@ export class SettingsManager implements PluginSettings {
             throw new Error('Invalid model configuration');
         }
 
-        provider.models[index] = storedModel;
+        // Update the model
+        model.displayName = modelDisplayName;
         this.saveData();
     }
 
@@ -312,19 +316,25 @@ export class SettingsManager implements PluginSettings {
     }
 
     private validateModel(model: StoredModel, provider: StoredProvider): boolean {
-        // Check that the model has an id and name
+        // Check that the model has required fields
         if (!model.name || !model.displayName) {
-            new Notice('Model validation failed: missing id or name');
-            console.error('Model validation failed: missing id or name', model);
+            new Notice('Model validation failed: missing name or display name');
+            console.error('Model validation failed: missing name or display name', model);
             return false;
         }
 
-        // Check that the model has a unique id within the provider
+        // При обновлении модели мы ищем существующую модель с тем же name
+        // Если такая модель найдена, это нормально - мы её и обновляем
+        // Если не найдена, проверяем что нет другой модели с таким же name
         const existingModel = provider.models.find(m => m.name === model.name);
-        if (existingModel && existingModel !== model) {
-            new Notice('Model validation failed: id not unique within provider');
-            console.error('Model validation failed: id not unique within provider', model, existingModel);
-            return false;
+        if (!existingModel) {
+            // Это новая модель - проверяем уникальность name
+            const hasModelWithSameName = provider.models.some(m => m.name === model.name);
+            if (hasModelWithSameName) {
+                new Notice('Model validation failed: name must be unique within provider');
+                console.error('Model validation failed: name must be unique within provider', model);
+                return false;
+            }
         }
 
         return true;
