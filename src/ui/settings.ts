@@ -3,7 +3,7 @@ import { ModelConfig, PluginSettings } from '../types';
 import { YouTubeSummarizerPlugin } from '../main';
 import { SettingsUIComponents } from './components/SettingsUIComponents';
 import { SettingsEventHandlers, UICallbacks } from './handlers/SettingsEventHandlers';
-import { SettingsModals } from './modals/SettingsModals';
+import { SettingsModalsFactory } from './modals/SettingsModalsFactory';
 
 /**
  * Represents the settings tab for the YouTube Summarizer Plugin.
@@ -16,7 +16,7 @@ export class SettingsTab extends PluginSettingTab {
     private settings: PluginSettings;
     private uiComponents: SettingsUIComponents;
     private eventHandlers: SettingsEventHandlers;
-    private modals: SettingsModals;
+    private modals: SettingsModalsFactory;
 
     constructor(app: App, private plugin: YouTubeSummarizerPlugin) {
         super(app, plugin);
@@ -26,28 +26,27 @@ export class SettingsTab extends PluginSettingTab {
         // Create callbacks for UI updates
         const callbacks: UICallbacks = {
             onModelAdded: (model) => {
-                this.uiComponents.addModelToAccordion(model, this.eventHandlers);
-                this.uiComponents.updateModelDropdown(
-                    this.getAvailableModels(),
-                    this.settings.getSelectedModel()?.name || null
-                );
+                this.reload();
             },
             onModelDeleted: (model) => {
-                this.uiComponents.removeModelFromAccordion(model);
-                this.uiComponents.updateModelDropdown(
-                    this.getAvailableModels(),
-                    this.settings.getSelectedModel()?.name || null
-                );
+                this.reload();
             },
             onModelUpdated: (model) => {
-                this.uiComponents.updateModelInAccordion(model);
-                this.uiComponents.updateModelDropdown(
-                    this.getAvailableModels(),
-                    this.settings.getSelectedModel()?.name || null
-                );
+                this.reload();
             },
             onProviderAdded: (provider) => {
-                this.uiComponents.addProviderAccordion(provider, this.eventHandlers);
+                this.reload();
+            },
+            onProviderDeleted: () => {
+                this.reload();
+            },
+            onProviderUpdated: (provider, originalName) => {
+                // Change the provider name in the accordion in order to keep the accordion open in the reload() function
+                const oldAccordion = document.querySelector(`[data-provider-name="${originalName}"]`);
+                if (oldAccordion) {
+                    oldAccordion.setAttribute('data-provider-name', provider.name);
+                }
+                this.reload();
             },
             onActiveModelChanged: () => {
                 this.uiComponents.updateModelDropdown(
@@ -57,8 +56,8 @@ export class SettingsTab extends PluginSettingTab {
             }
         };
 
-        this.eventHandlers = new SettingsEventHandlers(plugin, callbacks);
-        this.modals = new SettingsModals(app);
+        this.modals = new SettingsModalsFactory(app);
+        this.eventHandlers = new SettingsEventHandlers(plugin, this.modals, callbacks);
     }
 
     getAvailableModels(): ModelConfig[] {
@@ -132,84 +131,7 @@ export class SettingsTab extends PluginSettingTab {
 
         // Create accordions for each provider
         this.settings.getProviders().forEach(provider => {
-            const accordion = this.uiComponents.createProviderAccordion(provider);
-            const content = accordion.querySelector('.yt-summarizer-settings__provider-content') as HTMLElement;
-
-            // Add click handler for accordion toggle
-            const header = accordion.querySelector('.yt-summarizer-settings__provider-header');
-            header?.addEventListener('click', () => this.eventHandlers.handleAccordionToggle(accordion));
-
-            // API Key Setting
-            const apiKeySetting = this.uiComponents.createApiKeySetting(content, provider);
-
-            // Add visibility toggle button
-            apiKeySetting.addExtraButton(button => {
-                button
-                    .setIcon('eye')
-                    .setTooltip('Show API key')
-                    .onClick(() => {
-                        const input = apiKeySetting.controlEl.querySelector('input');
-                        if (input) {
-                            const isPassword = input.type === 'password';
-                            input.type = isPassword ? 'text' : 'password';
-                            button.setIcon(isPassword ? 'eye-off' : 'eye');
-                            button.setTooltip(isPassword ? 'Hide API key' : 'Show API key');
-                        }
-                    });
-            });
-
-            // Add test button
-            apiKeySetting.addButton(button =>
-                button
-                    .setButtonText('Test')
-                    .setCta()
-                    .onClick(() => this.eventHandlers.handleApiKeyTest(provider))
-            );
-
-            // Models section
-            const modelsSection = content.createDiv();
-            const modelsHeader = modelsSection.createEl('h4', { text: 'Models' });
-            modelsHeader.style.marginTop = '24px';
-            modelsHeader.style.marginBottom = '12px';
-
-            // Models list
-            const modelsList = modelsSection.createDiv({ cls: 'yt-summarizer-settings__models-list' });
-
-            // Add models
-            provider.models?.forEach(model => {
-                const modelItem = this.uiComponents.createModelItem(model);
-
-                // Add event listeners to buttons
-                const editButton = modelItem.querySelector('[aria-label="Edit model"]');
-                const deleteButton = modelItem.querySelector('[aria-label="Delete model"]');
-
-                editButton?.addEventListener('click', () => {
-                    const modal = this.modals.createEditModelModal(model, this.eventHandlers);
-                    modal.open();
-                });
-
-                deleteButton?.addEventListener('click', () => {
-                    const modal = this.modals.createDeleteModelModal(model, this.eventHandlers);
-                    modal.open();
-                });
-
-                modelsList.appendChild(modelItem);
-            });
-
-            // Add Model button
-            const addModelButton = new Setting(modelsSection)
-                .addButton(button =>
-                    button
-                        .setButtonText('Add Model')
-                        .setCta()
-                        .onClick(() => {
-                            const modal = this.modals.createAddModelModal(provider, this.eventHandlers);
-                            modal.open();
-                        })
-                );
-            addModelButton.settingEl.addClass('yt-summarizer-settings__add-button');
-
-            accordionsContainer.appendChild(accordion);
+            this.uiComponents.addProviderAccordion(provider, this.eventHandlers);
         });
 
         // Add Provider button at the bottom
@@ -270,5 +192,34 @@ export class SettingsTab extends PluginSettingTab {
                         await this.settings.updateTemperature(Number(value));
                     })
             );
+    }
+
+    private reload(): void {
+        // Find currently opened accordion
+        const openedAccordion = document.querySelector('.yt-summarizer-settings__provider-content[style*="block"]');
+        let openedProviderName: string | null = null;
+
+        if (openedAccordion) {
+            const accordion = openedAccordion.closest('.yt-summarizer-settings__provider-accordion');
+            if (accordion) {
+                openedProviderName = accordion.getAttribute('data-provider-name');
+            }
+        }
+
+        // Refresh the display
+        this.display();
+
+        // If there was an opened accordion, find and open it in the new display
+        if (openedProviderName) {
+            const newAccordion = document.querySelector(`[data-provider-name="${openedProviderName}"]`);
+            if (newAccordion) {
+                const content = newAccordion.querySelector('.yt-summarizer-settings__provider-content') as HTMLElement;
+                const icon = newAccordion.querySelector('.yt-summarizer-settings__collapse-icon');
+                if (content && icon) {
+                    content.style.display = 'block';
+                    icon.addClass('is-expanded');
+                }
+            }
+        }
     }
 }

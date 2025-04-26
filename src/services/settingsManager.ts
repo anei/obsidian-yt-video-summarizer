@@ -147,8 +147,8 @@ export class SettingsManager implements PluginSettings {
     }
 
     /** Updates an existing provider */
-    updateProvider(provider: ProviderConfig): void {
-        const storedProvider = this.settings.providers.find(p => p.name === provider.name);
+    updateProvider(provider: ProviderConfig, originalName: string): void {
+        const storedProvider = this.settings.providers.find(p => p.name === originalName);
         if (!storedProvider) {
             throw new Error('Provider not found');
         }
@@ -158,7 +158,7 @@ export class SettingsManager implements PluginSettings {
             models: storedProvider.models
         };
 
-        if (!this.validateProvider(updatedProvider)) {
+        if (!this.validateProvider(updatedProvider, originalName)) {
             throw new Error('Invalid provider configuration');
         }
 
@@ -293,7 +293,7 @@ export class SettingsManager implements PluginSettings {
         }
     }
 
-    private validateProvider(provider: StoredProvider): boolean {
+    private validateProvider(provider: StoredProvider, originalName?: string): boolean {
         if (!provider.name || !provider.type) {
             return false;
         }
@@ -305,9 +305,9 @@ export class SettingsManager implements PluginSettings {
             return false;
         }
 
-        // Check name uniqueness
+        // Check name uniqueness, but allow the provider to keep its own name during updates
         const existingProvider = this.settings.providers.find(p => p.name === provider.name);
-        if (existingProvider && existingProvider !== provider) {
+        if (existingProvider && (!originalName || provider.name !== originalName)) {
             new Notice('Provider validation failed: name not unique');
             return false;
         }

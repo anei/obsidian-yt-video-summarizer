@@ -70,7 +70,7 @@ export interface PluginSettings {
     addModel(model: ModelConfig): void;
 
     /** Updates an existing provider */
-    updateProvider(provider: ProviderConfig): void;
+    updateProvider(provider: ProviderConfig, originalName: string): void;
 
     /** Updates an existing model */
     updateModel(modelName: string, modelDisplayName: string, providerName: string): void;

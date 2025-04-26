@@ -1,7 +1,7 @@
 import { App, Setting, setIcon } from 'obsidian';
 import { ModelConfig, ProviderConfig } from '../../types';
 import { SettingsEventHandlers } from '../handlers/SettingsEventHandlers';
-import { SettingsModals } from '../modals/SettingsModals';
+import { SettingsModalsFactory } from '../modals/SettingsModalsFactory';
 
 export class SettingsUIComponents {
     constructor(private app: App) { }
@@ -28,8 +28,25 @@ export class SettingsUIComponents {
             });
         }
 
-        // Right side of header - collapse/expand icon
-        const iconEl = header.createDiv({ cls: 'yt-summarizer-settings__collapse-icon' });
+        // Right side of header - controls
+        const headerControls = header.createDiv({ cls: 'yt-summarizer-settings__provider-controls' });
+
+        // Edit button
+        const editButton = headerControls.createEl('button', {
+            cls: 'clickable-icon yt-summarizer-settings__provider-edit',
+            attr: { 'aria-label': 'Edit provider' }
+        });
+        setIcon(editButton, 'pencil');
+
+        // Delete button
+        const deleteButton = headerControls.createEl('button', {
+            cls: 'clickable-icon yt-summarizer-settings__provider-delete',
+            attr: { 'aria-label': 'Delete provider' }
+        });
+        setIcon(deleteButton, 'trash');
+
+        // Collapse/expand icon
+        const iconEl = headerControls.createDiv({ cls: 'yt-summarizer-settings__collapse-icon' });
         setIcon(iconEl, 'chevron-down');
 
         // Content section
@@ -111,13 +128,11 @@ export class SettingsUIComponents {
         const deleteButton = modelItem.querySelector('[aria-label="Delete model"]');
 
         editButton?.addEventListener('click', () => {
-            const modal = new SettingsModals(this.app).createEditModelModal(model, handlers);
-            modal.open();
+            handlers.handleModelEditClick(model);
         });
 
         deleteButton?.addEventListener('click', () => {
-            const modal = new SettingsModals(this.app).createDeleteModelModal(model, handlers);
-            modal.open();
+            handlers.handleModelDeleteClick(model);
         });
 
         modelsList.appendChild(modelItem);
@@ -172,7 +187,26 @@ export class SettingsUIComponents {
 
         // Add click handler for accordion toggle
         const header = accordion.querySelector('.yt-summarizer-settings__provider-header');
-        header?.addEventListener('click', () => handlers.handleAccordionToggle(accordion));
+        const editButton = accordion.querySelector('.yt-summarizer-settings__provider-edit');
+        const deleteButton = accordion.querySelector('.yt-summarizer-settings__provider-delete');
+
+        // Handle header click for collapse/expand
+        header?.addEventListener('click', (e) => {
+            // Only toggle if the click wasn't on the edit or delete buttons
+            if (!editButton?.contains(e.target as Node) && !deleteButton?.contains(e.target as Node)) {
+                handlers.handleAccordionToggle(accordion);
+            }
+        });
+
+        // Handle edit button click
+        editButton?.addEventListener('click', () => {
+            handlers.handleProviderEditClick(provider);
+        });
+
+        // Handle delete button click
+        deleteButton?.addEventListener('click', () => {
+            handlers.handleProviderDeleteClick(provider);
+        });
 
         // Add API Key Setting
         const apiKeySetting = this.createApiKeySetting(content, provider);
@@ -193,20 +227,33 @@ export class SettingsUIComponents {
                 });
         });
 
-        // Add test button
-        apiKeySetting.addButton(button =>
-            button
-                .setButtonText('Test')
-                .setCta()
-                .onClick(() => handlers.handleApiKeyTest(provider))
-        );
-
         // Add Models section
         const modelsSection = content.createDiv();
-        modelsSection.createEl('h4', { text: 'Models' }).style.marginTop = '24px';
+        const modelsHeader = modelsSection.createEl('h4', { text: 'Models' });
+        modelsHeader.style.marginTop = '24px';
+        modelsHeader.style.marginBottom = '12px';
 
         // Models list
         const modelsList = modelsSection.createDiv({ cls: 'yt-summarizer-settings__models-list' });
+
+        // Add models
+        provider.models?.forEach(model => {
+            const modelItem = this.createModelItem(model);
+
+            // Add event listeners
+            const editButton = modelItem.querySelector('[aria-label="Edit model"]');
+            const deleteButton = modelItem.querySelector('[aria-label="Delete model"]');
+
+            editButton?.addEventListener('click', () => {
+                handlers.handleModelEditClick(model);
+            });
+
+            deleteButton?.addEventListener('click', () => {
+                handlers.handleModelDeleteClick(model);
+            });
+
+            modelsList.appendChild(modelItem);
+        });
 
         // Add Model button
         const addModelButton = new Setting(modelsSection)
@@ -215,8 +262,7 @@ export class SettingsUIComponents {
                     .setButtonText('Add Model')
                     .setCta()
                     .onClick(() => {
-                        const modal = new SettingsModals(this.app).createAddModelModal(provider, handlers);
-                        modal.open();
+                        handlers.handleAddModelClick(provider);
                     })
             );
         addModelButton.settingEl.addClass('yt-summarizer-settings__add-button');

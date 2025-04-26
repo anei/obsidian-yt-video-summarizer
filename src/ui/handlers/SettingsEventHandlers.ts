@@ -1,29 +1,24 @@
 import { Notice } from 'obsidian';
 import { ModelConfig, ProviderConfig } from '../../types';
 import { YouTubeSummarizerPlugin } from '../../main';
+import { SettingsModalsFactory } from '../modals/SettingsModalsFactory';
 
 export interface UICallbacks {
     onModelAdded?: (model: ModelConfig) => void;
     onModelDeleted?: (model: ModelConfig) => void;
     onModelUpdated?: (model: ModelConfig) => void;
     onProviderAdded?: (provider: ProviderConfig) => void;
+    onProviderDeleted?: (provider: ProviderConfig) => void;
+    onProviderUpdated?: (provider: ProviderConfig, originalName: string) => void;
     onActiveModelChanged?: () => void;
 }
 
 export class SettingsEventHandlers {
     constructor(
         private plugin: YouTubeSummarizerPlugin,
+        private settingsModalsFactory: SettingsModalsFactory,
         private callbacks: UICallbacks = {}
     ) { }
-
-    async handleApiKeyTest(provider: ProviderConfig): Promise<void> {
-        try {
-            await this.plugin.settings.saveProviderKey(provider.name, provider.apiKey);
-            new Notice(`${provider.name} API key saved successfully`);
-        } catch (error) {
-            new Notice(`Failed to validate ${provider.name} API key: ${error.message}`);
-        }
-    }
 
     async handleModelSelection(value: string, availableModels: ModelConfig[]): Promise<void> {
         try {
@@ -75,10 +70,49 @@ export class SettingsEventHandlers {
     async handleProviderAdd(provider: ProviderConfig): Promise<void> {
         try {
             this.plugin.settings.addProvider(provider);
-            await this.handleApiKeyTest(provider);
             this.callbacks.onProviderAdded?.(provider);
         } catch (error) {
             new Notice(`Failed to add provider: ${error.message}`);
+            throw error;
+        }
+    }
+
+    async handleProviderEdit(provider: ProviderConfig, originalName: string): Promise<void> {
+        try {
+            this.plugin.settings.updateProvider(provider, originalName);
+            this.callbacks.onProviderUpdated?.(provider, originalName);
+            new Notice(`Provider ${provider.name} updated successfully`);
+        } catch (error) {
+            console.error('Error updating provider:', error);
+            new Notice(`Failed to update provider: ${error.message}`);
+            throw error;
+        }
+    }
+
+    // Click on a trash icon to delete a provider
+    handleProviderDeleteClick(provider: ProviderConfig): void {
+        const selectedModel = this.plugin.settings.getSelectedModel();
+        if (selectedModel && selectedModel.provider.name === provider.name) {
+            const warningMessage = `Cannot delete provider "${provider.name}" because it contains the currently selected model "${selectedModel.name}". ` +
+                `Please select a model from a different provider first.`;
+            const modal = this.settingsModalsFactory.createWarningModal(warningMessage);
+            modal.open();
+            return;
+        }
+
+        const modal = this.settingsModalsFactory.createDeleteProviderModal(provider, this);
+        modal.open();
+    }
+
+    // Click on a "Delete" button at confirmation popup
+    async handleProviderDelete(provider: ProviderConfig): Promise<void> {
+        try {
+            this.plugin.settings.deleteProvider(provider);
+            this.callbacks.onProviderDeleted?.(provider);
+            new Notice(`Provider ${provider.name} deleted successfully`);
+        } catch (error) {
+            console.error('Error deleting provider:', error);
+            new Notice(`Failed to delete provider: ${error.message}`);
             throw error;
         }
     }
@@ -116,5 +150,25 @@ export class SettingsEventHandlers {
             new Notice(`Failed to delete model: ${error.message}`);
             throw error;
         }
+    }
+
+    handleModelEditClick(model: ModelConfig): void {
+        const modal = this.settingsModalsFactory.createEditModelModal(model, this);
+        modal.open();
+    }
+
+    handleModelDeleteClick(model: ModelConfig): void {
+        const modal = this.settingsModalsFactory.createDeleteModelModal(model, this);
+        modal.open();
+    }
+
+    handleProviderEditClick(provider: ProviderConfig): void {
+        const modal = this.settingsModalsFactory.createEditProviderModal(provider, this);
+        modal.open();
+    }
+
+    handleAddModelClick(provider: ProviderConfig): void {
+        const modal = this.settingsModalsFactory.createAddModelModal(provider, this);
+        modal.open();
     }
 } 

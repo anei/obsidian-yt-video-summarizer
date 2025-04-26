@@ -284,38 +284,17 @@ If your plugin does not need CSS, delete this file.
 }
 
 .yt-summarizer-settings__provider-header {
-	padding: 16px;
+	padding: 12px;
 	cursor: pointer;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	border-bottom: 1px solid var(--background-modifier-border);
+	background-color: var(--background-secondary);
+	border-radius: 4px;
 }
 
 .yt-summarizer-settings__provider-header h3 {
 	margin: 0;
-}
-
-.yt-summarizer-settings__verified-badge {
-	font-size: 0.7em;
-	background-color: var(--color-green);
-	color: white;
-	padding: 2px 6px;
-	border-radius: 8px;
-	font-weight: bold;
-}
-
-.yt-summarizer-settings__collapse-icon {
-	transition: transform 0.3s ease;
-}
-
-.yt-summarizer-settings__collapse-icon.is-expanded {
-	transform: rotate(180deg);
-}
-
-/* Provider Content */
-.yt-summarizer-settings__provider-content {
-	padding: 16px;
 }
 
 .yt-summarizer-settings__provider-info {
@@ -324,13 +303,59 @@ If your plugin does not need CSS, delete this file.
 	gap: 8px;
 }
 
-.yt-summarizer-settings__provider-info .yt-summarizer-settings__verified-badge {
-	font-size: 0.8em;
-	background-color: var(--color-green);
-	color: white;
-	padding: 3px 8px;
-	border-radius: 8px;
-	font-weight: bold;
+.yt-summarizer-settings__provider-controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-direction: row;
+}
+
+.yt-summarizer-settings__provider-edit,
+.yt-summarizer-settings__provider-delete {
+	opacity: 0;
+	transition: opacity 0.2s ease-in-out;
+	padding: 0;
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.yt-summarizer-settings__provider-accordion:hover .yt-summarizer-settings__provider-edit,
+.yt-summarizer-settings__provider-accordion:hover .yt-summarizer-settings__provider-delete {
+	opacity: 0.8;
+}
+
+.yt-summarizer-settings__provider-edit:hover,
+.yt-summarizer-settings__provider-delete:hover {
+	opacity: 1 !important;
+}
+
+.yt-summarizer-settings__collapse-icon {
+	transition: transform 0.2s ease;
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.yt-summarizer-settings__collapse-icon.is-expanded {
+	transform: rotate(180deg);
+}
+
+.yt-summarizer-settings__verified-badge {
+	font-size: 12px;
+	padding: 2px 6px;
+	border-radius: 4px;
+	background-color: var(--interactive-success);
+	color: var(--text-on-accent);
+}
+
+/* Provider Content */
+.yt-summarizer-settings__provider-content {
+	padding: 16px;
 }
 
 /* Models List */
