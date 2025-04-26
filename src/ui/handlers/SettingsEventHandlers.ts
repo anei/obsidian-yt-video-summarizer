@@ -173,4 +173,21 @@ export class SettingsEventHandlers {
         const modal = this.settingsModalsFactory.createAddModelModal(provider, this);
         modal.open();
     }
+
+    /**
+     * Handles API key change for a provider and saves it immediately.
+     * @param providerName - The name of the provider
+     * @param apiKey - The new API key value
+     */
+    async handleApiKeyChange(providerName: string, apiKey: string): Promise<void> {
+        try {
+            await this.plugin.settings.saveProviderKey(providerName, apiKey);
+            this.callbacks.onProviderUpdated?.(
+                this.plugin.settings.getProviders().find(p => p.name === providerName)!,
+                providerName
+            );
+        } catch (error) {
+            console.error('Failed to save API key:', error);
+        }
+    }
 } 

@@ -26,27 +26,35 @@ const DEFAULT_OPENAI_MODELS = [
         displayName: 'GPT-3.5 Turbo'
     },
     {
-        name: 'gpt-4',
-        displayName: 'GPT-4'
+        name: 'gpt-4.1-nano',
+        displayName: 'GPT-4.1 Nano'
     },
     {
-        name: 'gpt-4-turbo',
-        displayName: 'GPT-4 Turbo'
-    }
+        name: 'gpt-4.1-mini',
+        displayName: 'GPT-4.1 Mini'
+    },
+    {
+        name: 'gpt-4.1',
+        displayName: 'GPT-4.1'
+    },
+    {
+        name: 'o4-mini',
+        displayName: 'o4 Mini: reasoning model, more expensive'
+    },
 ];
 
 const DEFAULT_ANTHROPIC_MODELS = [
     {
-        name: 'claude-3-opus',
-        displayName: 'Claude 3 Opus'
+        name: 'claude-3-5-sonnet-latest',
+        displayName: 'Claude 3.5 Sonnet'
     },
     {
-        name: 'claude-3-sonnet',
-        displayName: 'Claude 3 Sonnet'
+        name: 'claude-3-5-haiku-latest',
+        displayName: 'Claude 3.5 Haiku'
     },
     {
-        name: 'claude-3-haiku',
-        displayName: 'Claude 3 Haiku '
+        name: 'claude-3-7-sonnet-latest',
+        displayName: 'Claude 3.7 Sonnet'
     }
 ];
 

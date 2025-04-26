@@ -92,7 +92,7 @@ export interface PluginSettings {
     updateTemperature(temperature: number): void;
 
     /** Saves the API key for a provider without validation */
-    saveProviderKey(providerName: string, key: string): void;
+    saveProviderKey(providerName: string, key: string): Promise<void>;
 
     /**
      * Validates a model ID.

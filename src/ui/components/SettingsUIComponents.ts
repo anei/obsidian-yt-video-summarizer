@@ -92,14 +92,17 @@ export class SettingsUIComponents {
         return tab;
     }
 
-    createApiKeySetting(container: HTMLElement, provider: ProviderConfig): Setting {
+    createApiKeySetting(container: HTMLElement, provider: ProviderConfig, handlers: SettingsEventHandlers): Setting {
         return new Setting(container)
             .setName('API Key')
             .setDesc(`Enter your ${provider.name} API key`)
             .addText(text => {
                 text
                     .setPlaceholder('Enter API key')
-                    .setValue(provider.apiKey);
+                    .setValue(provider.apiKey)
+                    .onChange((value) => {
+                        handlers.handleApiKeyChange(provider.name, value);
+                    });
                 text.inputEl.type = 'password';
                 return text;
             });
@@ -201,7 +204,7 @@ export class SettingsUIComponents {
         });
 
         // Add API Key Setting
-        const apiKeySetting = this.createApiKeySetting(content, provider);
+        const apiKeySetting = this.createApiKeySetting(content, provider, handlers);
 
         // Add visibility toggle button
         apiKeySetting.addExtraButton(button => {

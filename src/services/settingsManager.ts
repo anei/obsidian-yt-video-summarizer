@@ -190,7 +190,7 @@ export class SettingsManager implements PluginSettings {
         this.saveData();
     }
 
-    /** Deletes a provider if it has no associated models */
+    /** Deletes a provider */
     deleteProvider(provider: ProviderConfig): void {
         const storedProvider = this.settings.providers.find(p => p.name === provider.name);
         if (!storedProvider) {
@@ -198,7 +198,10 @@ export class SettingsManager implements PluginSettings {
         }
 
         if (storedProvider.models.length > 0) {
-            throw new Error('Cannot delete provider with associated models');
+            // remove all models associated with this provider
+            storedProvider.models.forEach(model => {
+                this.deleteModel(storedProvider.name, model.name);
+            });
         }
 
         const index = this.settings.providers.indexOf(storedProvider);
@@ -208,11 +211,8 @@ export class SettingsManager implements PluginSettings {
 
     /** Deletes a model */
     deleteModel(providerName: string, modelName: string): void {
-        console.log('Deleting model:', modelName, 'from provider:', providerName);
-
         // Найдем провайдера по имени
         const provider = this.settings.providers.find(p => p.name === providerName);
-        console.log('Found provider:', provider);
 
         if (!provider) {
             throw new Error(`Provider not found: ${providerName}`);
@@ -220,8 +220,6 @@ export class SettingsManager implements PluginSettings {
 
         // Найдем модель по имени (которое раньше было id)
         const index = provider.models.findIndex(m => m.name === modelName);
-        console.log('Model index:', index, 'Looking for id:', modelName);
-        console.log('Available models:', provider.models);
 
         if (index === -1) {
             throw new Error(`Model not found: ${modelName}`);
@@ -262,14 +260,14 @@ export class SettingsManager implements PluginSettings {
     }
 
     /** Saves the API key for a provider without validation */
-    saveProviderKey(providerName: string, key: string): void {
+    async saveProviderKey(providerName: string, key: string): Promise<void> {
         const provider = this.settings.providers.find(p => p.name === providerName);
         if (!provider) {
             throw new Error('Provider not found');
         }
 
         provider.apiKey = key;
-        this.saveData();
+        await this.saveData();
     }
 
     private async saveData(): Promise<void> {
