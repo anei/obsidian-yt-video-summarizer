@@ -80,7 +80,6 @@ export class AddProviderModal extends Modal {
                                 type: this.type as ProviderType,
                                 apiKey: this.apiKey,
                                 url: this.url || undefined,
-                                verified: false,
                                 models: []
                             };
                             await this.handlers.handleProviderAdd(newProvider);

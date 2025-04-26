@@ -20,14 +20,6 @@ export class SettingsUIComponents {
 
         const titleEl = headerInfo.createEl('h3', { text: provider.name });
 
-        // Verified indicator
-        if (provider.verified) {
-            headerInfo.createEl('span', {
-                text: 'Verified',
-                cls: 'yt-summarizer-settings__verified-badge'
-            });
-        }
-
         // Right side of header - controls
         const headerControls = header.createDiv({ cls: 'yt-summarizer-settings__provider-controls' });
 

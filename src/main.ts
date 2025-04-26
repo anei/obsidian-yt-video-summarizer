@@ -45,10 +45,10 @@ export class YouTubeSummarizerPlugin extends Plugin {
 	 * @returns {Promise<void>} A promise that resolves when the services are initialized.
 	 * @throws {Error} Throws an error if the services cannot be initialized.
 	 */
-	private async initializeServices(): Promise<void> {
+	public async initializeServices(): Promise<void> {
 		// Initialize settings manager
 		this.settings = new SettingsManager(this);
-
+		await this.settings.loadSettings();
 		// Initialize youtube service
 		this.youtubeService = new YouTubeService();
 
@@ -137,6 +137,7 @@ export class YouTubeSummarizerPlugin extends Plugin {
 			this.isProcessing = true;
 			// Get the selected model
 			const selectedModel = this.settings.getSelectedModel();
+
 			if (!selectedModel) {
 				new Notice('No AI model selected. Please select a model in the plugin settings.');
 				return;

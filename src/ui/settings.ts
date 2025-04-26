@@ -11,7 +11,6 @@ import { SettingsModalsFactory } from './modals/SettingsModalsFactory';
  * for configuring the plugin's settings.
  */
 export class SettingsTab extends PluginSettingTab {
-    private activeModelDropdown: HTMLSelectElement | null = null;
     private currentTab: string = 'ai-providers';
     private settings: PluginSettings;
     private uiComponents: SettingsUIComponents;
@@ -21,6 +20,8 @@ export class SettingsTab extends PluginSettingTab {
     constructor(app: App, private plugin: YouTubeSummarizerPlugin) {
         super(app, plugin);
         this.settings = plugin.settings;
+        const selectedModel = this.settings.getSelectedModel();
+        console.info('SettingsTab', 'selectedModel', selectedModel);
         this.uiComponents = new SettingsUIComponents(app);
 
         // Create callbacks for UI updates
@@ -103,10 +104,19 @@ export class SettingsTab extends PluginSettingTab {
         });
     }
 
+    private buildModelId(model: ModelConfig): string {
+        if (!model.provider || !model.name) {
+            return '';
+        }
+        return `${model.provider.name}:${model.name}`;
+    }
+
     private displayAIProvidersSection(containerEl: HTMLElement): void {
         // Active Model Selection
         const availableModels = this.getAvailableModels();
-        const selectedModel = this.settings.getSelectedModel();
+		const selectedModel = this.settings.getSelectedModel();
+
+        console.info('settingsTab', 'selectedModel', selectedModel);
 
         new Setting(containerEl)
             .setName('Active Model')
@@ -115,15 +125,15 @@ export class SettingsTab extends PluginSettingTab {
                 const options: Record<string, string> = {};
                 availableModels.forEach(model => {
                     const displayText = model.displayName || model.name;
-                    options[model.name] = `${model.provider.name} / ${displayText}`;
+                    const modelId = this.buildModelId(model);
+                    options[modelId] = `${model.provider.name} / ${displayText}`;
                 });
 
                 dropdown
                     .addOptions(options)
-                    .setValue(selectedModel?.name || '')
-                    .onChange(value => this.eventHandlers.handleModelSelection(value, availableModels));
+                    .setValue(selectedModel ? this.buildModelId(selectedModel) : '')
+                    .onChange(value => this.eventHandlers.handleModelSelection(value));
 
-                this.activeModelDropdown = dropdown.selectEl;
             });
 
         // Provider Accordions Container

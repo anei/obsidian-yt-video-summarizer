@@ -20,13 +20,15 @@ export class SettingsEventHandlers {
         private callbacks: UICallbacks = {}
     ) { }
 
-    async handleModelSelection(value: string, availableModels: ModelConfig[]): Promise<void> {
+    async handleModelSelection(value: string): Promise<void> {
         try {
-            const selectedModel = availableModels.find(m => m.name === value);
-            if (selectedModel) {
-                await this.plugin.settings.setSelectedModel(selectedModel.name);
-                this.callbacks.onActiveModelChanged?.();
+            if (!this.plugin.settings.validateModelId(value)) {
+                console.error('Couldn\'t save active model:', value, 'Invalid model ID');
+                return;
             }
+            await this.plugin.settings.updateActiveModel(value);
+            await this.plugin.initializeServices();
+            this.callbacks.onActiveModelChanged?.();
         } catch (error) {
             console.error('Failed to set active model:', error, 'Selected model:', value);
             new Notice(`Failed to set active model: ${error.message}`);

@@ -6,7 +6,6 @@ interface BaseProvider {
     type: ProviderType;
     apiKey: string;
     url?: string;
-    verified: boolean;
 }
 /** Configuration for an AI provider */
 export interface ProviderConfig extends BaseProvider {
@@ -42,11 +41,10 @@ export interface StoredSettings {
 
 /** Represents the plugin settings and provides methods to manage them */
 export interface PluginSettings {
+    /** Loads the settings from the plugin */
+    loadSettings(): Promise<void>;
     /** Gets the currently selected model */
     getSelectedModel(): ModelConfig | null;
-
-    /** Sets the currently selected model by name */
-    setSelectedModel(modelId: string): void;
 
     /** Gets all available providers */
     getProviders(): ProviderConfig[];
@@ -81,6 +79,9 @@ export interface PluginSettings {
     /** Deletes a model */
     deleteModel(providerName: string, modelName: string): void;
 
+    /** Updates the selected model */
+    updateActiveModel(modelId: string): Promise<void>;
+
     /** Updates the custom prompt template */
     updateCustomPrompt(prompt: string): void;
 
@@ -92,6 +93,15 @@ export interface PluginSettings {
 
     /** Saves the API key for a provider without validation */
     saveProviderKey(providerName: string, key: string): void;
+
+    /**
+     * Validates a model ID.
+     * Correct format is "ProviderName:ModelName". Check that provider and model exist.
+     * 
+     * @param modelId - The model ID to validate.
+     * @returns True if the model ID is valid, false otherwise.
+     */
+    validateModelId(modelId: string): boolean;
 }
 
 /** Represents a single line of video transcript with timing information */

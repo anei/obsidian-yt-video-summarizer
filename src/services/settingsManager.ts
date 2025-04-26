@@ -19,10 +19,9 @@ export class SettingsManager implements PluginSettings {
             maxTokens: DEFAULT_MAX_TOKENS,
             temperature: DEFAULT_TEMPERATURE
         };
-        this.loadSettings();
     }
 
-    private async loadSettings(): Promise<void> {
+    public async loadSettings(): Promise<void> {
         const loaded = await this.plugin.loadData();
 
         // Check if settings are in old format (has geminiApiKey)
@@ -42,7 +41,6 @@ export class SettingsManager implements PluginSettings {
             const geminiProvider = providers.find(p => p.name === 'Gemini');
             if (geminiProvider) {
                 geminiProvider.apiKey = oldSettings.geminiApiKey;
-                geminiProvider.verified = false;
             }
 
             this.settings = {
@@ -84,7 +82,6 @@ export class SettingsManager implements PluginSettings {
             type: provider.type,
             apiKey: provider.apiKey,
             url: provider.url,
-            verified: provider.verified,
             models: provider.models.map(model => this.convertToModelConfig(model, provider))
         }));
     }
@@ -259,9 +256,9 @@ export class SettingsManager implements PluginSettings {
     }
 
 
-    updateActiveModel(modelId: string): void {
+    async updateActiveModel(modelId: string): Promise<void> {
         this.settings.selectedModelId = modelId;
-        this.saveData();
+        await this.saveData();
     }
 
     /** Saves the API key for a provider without validation */
@@ -272,13 +269,6 @@ export class SettingsManager implements PluginSettings {
         }
 
         provider.apiKey = key;
-        provider.verified = false;
-        this.saveData();
-    }
-
-    /** Sets the selected model by ID */
-    setSelectedModel(modelId: string): void {
-        this.settings.selectedModelId = modelId;
         this.saveData();
     }
 
@@ -345,13 +335,12 @@ export class SettingsManager implements PluginSettings {
             return null;
         }
 
-        for (const provider of this.settings.providers) {
-            const model = provider.models.find(m => m?.name === modelId);
-            if (model) {
-                return { model, provider };
-            }
-        }
-        return null;
+        const { providerName: providerName, modelName: modelName } = this.parseModelId(modelId);
+        const provider = this.settings.providers.find(p => p.name === providerName);
+        if (!provider) return null;
+        const model = provider.models.find(m => m.name === modelName);
+        if (!model) return null;
+        return { model, provider };
     }
 
     private convertToModelConfig(model: StoredModel, provider: StoredProvider): ModelConfig {
@@ -363,18 +352,23 @@ export class SettingsManager implements PluginSettings {
                 type: provider.type,
                 apiKey: provider.apiKey,
                 url: provider.url,
-                verified: provider.verified
             }
         };
     }
 
-    private parseModelId(modelId: string): { provider: string, model: string } {
+    public parseModelId(modelId: string): { providerName: string, modelName: string } {
         const [provider, ...modelParts] = modelId.split(':');
         const model = modelParts.join(':');
-        return { provider, model };
+        return { providerName: provider, modelName: model };
     }
 
     private makeModelId(provider: string, model: string): string {
         return `${provider}:${model}`;
+    }
+
+    public validateModelId(modelId: string): boolean {
+        const { providerName, modelName } = this.parseModelId(modelId);
+        return this.settings.providers.some(p => p.name === providerName) 
+            && this.settings.providers.some(p => p.models.some(m => m.name === modelName));
     }
 }

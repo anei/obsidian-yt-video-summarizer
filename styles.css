@@ -345,14 +345,6 @@ If your plugin does not need CSS, delete this file.
 	transform: rotate(180deg);
 }
 
-.yt-summarizer-settings__verified-badge {
-	font-size: 12px;
-	padding: 2px 6px;
-	border-radius: 4px;
-	background-color: var(--interactive-success);
-	color: var(--text-on-accent);
-}
-
 /* Provider Content */
 .yt-summarizer-settings__provider-content {
 	padding: 16px;

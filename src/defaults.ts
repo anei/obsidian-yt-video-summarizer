@@ -57,21 +57,18 @@ export const DEFAULT_PROVIDERS: StoredProvider[] = [
         name: 'Gemini',
         type: 'gemini',
         apiKey: '',
-        verified: false,
         models: DEFAULT_GEMINI_MODELS
     },
     {
         name: 'OpenAI',
         type: 'openai',
         apiKey: '',
-        verified: false,
         models: DEFAULT_OPENAI_MODELS
     },
     {
         name: 'Anthropic',
         type: 'anthropic',
         apiKey: '',
-        verified: false,
         models: DEFAULT_ANTHROPIC_MODELS
     }
 ] as const;
