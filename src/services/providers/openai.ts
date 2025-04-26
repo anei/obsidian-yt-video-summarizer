@@ -16,7 +16,8 @@ export class OpenAIProvider implements AIModelProvider {
     ) {
         this.client = new OpenAI({
             apiKey: apiKey,
-            baseURL: baseUrl
+            baseURL: baseUrl,
+            dangerouslyAllowBrowser: true // required to run inside the browser-like Obsidian
         });
         this.model = model;
         this.maxTokens = maxTokens;

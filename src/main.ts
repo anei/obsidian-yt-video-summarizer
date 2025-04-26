@@ -58,7 +58,7 @@ export class YouTubeSummarizerPlugin extends Plugin {
 		// Initialize AI provider
 		const selectedModel = this.settings.getSelectedModel();
 		if (selectedModel) {
-			this.provider = ProvidersFactory.createProvider(selectedModel);
+			this.provider = ProvidersFactory.createProvider(selectedModel, this.settings.getMaxTokens(), this.settings.getTemperature());
 		}
 	}
 
@@ -90,6 +90,7 @@ export class YouTubeSummarizerPlugin extends Plugin {
 					}
 				} catch (error) {
 					new Notice(`Failed to process video: ${error.message}`);
+					console.error('Failed to process video:', error);
 				}
 			},
 		});
@@ -115,6 +116,7 @@ export class YouTubeSummarizerPlugin extends Plugin {
 					}
 				} catch (error) {
 					new Notice(`Failed to process video: ${error.message}`);
+					console.error('Failed to process video:', error);
 				}
 			},
 		});
@@ -182,6 +184,7 @@ export class YouTubeSummarizerPlugin extends Plugin {
 			new Notice('Summary generated successfully!');
 		} catch (error) {
 			new Notice(`Error: ${error.message}`);
+			console.error('Summary generation failed:', error);
 		} finally {
 			// Reset the processing flag
 			this.isProcessing = false;

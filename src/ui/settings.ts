@@ -21,7 +21,6 @@ export class SettingsTab extends PluginSettingTab {
         super(app, plugin);
         this.settings = plugin.settings;
         const selectedModel = this.settings.getSelectedModel();
-        console.info('SettingsTab', 'selectedModel', selectedModel);
         this.uiComponents = new SettingsUIComponents(app);
 
         // Create callbacks for UI updates
@@ -115,8 +114,6 @@ export class SettingsTab extends PluginSettingTab {
         // Active Model Selection
         const availableModels = this.getAvailableModels();
 		const selectedModel = this.settings.getSelectedModel();
-
-        console.info('settingsTab', 'selectedModel', selectedModel);
 
         new Setting(containerEl)
             .setName('Active Model')

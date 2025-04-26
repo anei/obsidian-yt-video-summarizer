@@ -4,11 +4,9 @@ import { GeminiProvider } from './gemini';
 import { OpenAIProvider } from './openai';
 
 export class ProvidersFactory {
-    static createProvider(config: ModelConfig): AIModelProvider {
+    static createProvider(config: ModelConfig, maxTokens: number, temperature: number): AIModelProvider {
         const { type, apiKey } = config.provider;
-        const { id: model } = config;
-        const maxTokens = config.provider.maxTokens;
-        const temperature = config.provider.temperature;
+        const { name: model } = config;
 
         switch (type) {
             case 'anthropic':
