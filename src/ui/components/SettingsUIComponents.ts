@@ -24,14 +24,14 @@ export class SettingsUIComponents {
 
         // Edit button
         const editButton = headerControls.createEl('button', {
-            cls: 'clickable-icon yt-summarizer-settings__provider-edit',
+            cls: 'clickable-icon',
             attr: { 'aria-label': 'Edit provider' }
         });
         setIcon(editButton, 'pencil');
 
         // Delete button
         const deleteButton = headerControls.createEl('button', {
-            cls: 'clickable-icon yt-summarizer-settings__provider-delete',
+            cls: 'clickable-icon',
             attr: { 'aria-label': 'Delete provider' }
         });
         setIcon(deleteButton, 'trash');
