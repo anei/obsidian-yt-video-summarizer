@@ -209,6 +209,13 @@ If your plugin does not need CSS, delete this file.
 	overflow: hidden;
 }
 
+.yt-summarizer-settings__provider-accordion .clickable-icon {
+	padding: 0;
+	width: var(--size-4-6);
+	height: var(--size-4-6);
+	cursor: pointer;
+}
+
 .yt-summarizer-settings__provider-header {
 	padding: var(--size-4-3);
 	cursor: pointer;
@@ -252,13 +259,6 @@ If your plugin does not need CSS, delete this file.
 /* Provider Content */
 .yt-summarizer-settings__provider-content {
 	padding: var(--size-4-4);
-}
-
-.yt-summarizer-settings__provider-content .clickable-icon {
-	padding: 0;
-	width: var(--size-4-6);
-	height: var(--size-4-6);
-	cursor: pointer;
 }
 
 /* Models List */
