@@ -223,9 +223,10 @@ export class SettingsUIComponents {
 
         // Add Models section
         const modelsSection = content.createDiv();
-        const modelsHeader = modelsSection.createEl('h4', { text: 'Models' });
-        modelsHeader.style.marginTop = '24px';
-        modelsHeader.style.marginBottom = '12px';
+        const modelsHeader = modelsSection.createEl('h4', {
+            text: 'Models',
+            cls: 'yt-summarizer-settings__models-header'
+        });
 
         // Models list
         const modelsList = modelsSection.createDiv({ cls: 'yt-summarizer-settings__models-list' });

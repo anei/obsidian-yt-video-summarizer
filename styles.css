@@ -413,3 +413,9 @@ If your plugin does not need CSS, delete this file.
 .yt-summarizer-settings__add-provider-button {
 	margin-top: 24px;
 }
+
+/* Models Header */
+.yt-summarizer-settings__models-header {
+	margin-top: 24px;
+	margin-bottom: 12px;
+}
