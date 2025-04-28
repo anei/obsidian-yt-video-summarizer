@@ -18,6 +18,7 @@ export class AddProviderModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
+        contentEl.addClass('yt-summarizer-settings__modal');
 
         contentEl.createEl('h2', { text: 'Add Provider' });
 
@@ -40,7 +41,6 @@ export class AddProviderModal extends Modal {
                 dropdown
                     .addOption('openai', 'OpenAI')
                     .addOption('anthropic', 'Anthropic')
-                    .addOption('gemini', 'Gemini')
                     .setValue(this.type)
                     .onChange(value => this.type = value);
             });

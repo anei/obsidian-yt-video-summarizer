@@ -49,12 +49,6 @@ If your plugin does not need CSS, delete this file.
 	padding: 1em;
 }
 
-.yt-summarizer-settings__textarea {
-	width: 100%;
-	min-height: 150px;
-	font-family: var(--font-monospace);
-}
-
 /* Modal */
 .yt-summarizer-modal {
 	padding: 1.5em;
@@ -99,24 +93,6 @@ If your plugin does not need CSS, delete this file.
 .settings-tab.is-active {
 	color: var(--interactive-accent);
 	border-color: var(--interactive-accent);
-}
-
-.provider-card {
-	border: 1px solid var(--background-modifier-border);
-	border-radius: var(--radius-m);
-	padding: var(--size-4-4);
-	background-color: var(--background-secondary);
-	margin-bottom: var(--size-4-4);
-}
-
-.provider-card h3 {
-	margin: 0 0 var(--size-4-2) 0;
-	color: var(--text-normal);
-}
-
-.provider-card p {
-	margin: 0 0 var(--size-4-4) 0;
-	color: var(--text-muted);
 }
 
 /* Modal styles */
@@ -169,19 +145,6 @@ If your plugin does not need CSS, delete this file.
 
 .yt-summarizer-modal__button--primary:hover {
 	background-color: var(--interactive-accent-hover);
-}
-
-/* Settings styles */
-.yt-summarizer-settings__textarea {
-	width: 100%;
-	min-height: 150px;
-	font-family: var(--font-monospace);
-	padding: var(--size-4-2);
-	border-radius: var(--radius-s);
-	border: 1px solid var(--background-modifier-border);
-	background-color: var(--background-primary);
-	color: var(--text-normal);
-	resize: vertical;
 }
 
 /* Utility classes */
@@ -417,26 +380,8 @@ If your plugin does not need CSS, delete this file.
 }
 
 /* Modal Styles */
-.yt-summarizer-settings__modal-content {
-	padding: 16px;
-}
-
-.yt-summarizer-settings__form-group {
-	margin-bottom: 16px;
-}
-
-.yt-summarizer-settings__form-group label {
-	display: block;
-	margin-bottom: 8px;
-}
-
-.yt-summarizer-settings__form-group input,
-.yt-summarizer-settings__form-group select {
-	width: 100%;
-}
-
-.yt-summarizer-settings__form-group input[disabled] {
-	background-color: var(--background-modifier-disabled);
+.yt-summarizer-settings__modal input[disabled] {
+	color: var(--text-faint);
 }
 
 .yt-summarizer-settings__button-container {
@@ -445,37 +390,17 @@ If your plugin does not need CSS, delete this file.
 	gap: 8px;
 }
 
-.yt-summarizer-settings__button-primary {
-	background-color: var(--interactive-accent);
-	color: var(--text-on-accent);
-}
-
-.yt-summarizer-settings__button-danger {
-	background-color: var(--text-error);
-	color: var(--text-on-accent);
-}
-
-/* Provider Card */
-.yt-summarizer-settings__provider-card {
-	border: 1px solid var(--background-modifier-border);
-	border-radius: 8px;
-	padding: 16px;
-	background-color: var(--background-secondary);
-}
-
-.yt-summarizer-settings__provider-card h3 {
-	margin: 0 0 8px 0;
-}
-
-.yt-summarizer-settings__provider-card .yt-summarizer-settings__description {
-	margin: 0 0 16px 0;
-	color: var(--text-muted);
-}
-
 /* Summary Settings */
-.yt-summarizer-settings__summary-prompt textarea {
-	width: 500px;
-	height: 200px;
+.yt-summarizer-settings__summary-prompt {
+	width: 100%;
+	min-height: 150px;
+	font-family: var(--font-monospace);
+	padding: var(--size-4-2);
+	border-radius: var(--radius-s);
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+	resize: vertical;
 }
 
 /* Button Styles */
@@ -487,22 +412,4 @@ If your plugin does not need CSS, delete this file.
 
 .yt-summarizer-settings__add-provider-button {
 	margin-top: 24px;
-}
-
-/* Model Item Styles from src/settings.css */
-.yt-summarizer-settings__model-item span {
-	display: flex;
-	align-items: center;
-}
-
-.yt-summarizer-settings__model-item .yt-summarizer-settings__model-name {
-	margin-right: 8px;
-}
-
-.yt-summarizer-settings__model-item .yt-summarizer-settings__model-status {
-	color: var(--text-muted);
-}
-
-.yt-summarizer-settings__model-item .yt-summarizer-settings__model-status.yt-summarizer-settings__builtin {
-	color: var(--text-accent);
 }

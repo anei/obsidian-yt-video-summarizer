@@ -129,7 +129,9 @@ export class SettingsTab extends PluginSettingTab {
                 dropdown
                     .addOptions(options)
                     .setValue(selectedModel ? this.buildModelId(selectedModel) : '')
-                    .onChange(value => this.eventHandlers.handleModelSelection(value));
+                    .onChange(async (value) => {
+                        await this.eventHandlers.handleModelSelection(value);
+                    });
 
             });
 

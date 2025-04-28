@@ -17,6 +17,7 @@ export class EditModelModal extends Modal {
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
+        contentEl.addClass('yt-summarizer-settings__modal');
 
         contentEl.createEl('h2', { text: 'Edit Model' });
 

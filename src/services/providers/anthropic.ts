@@ -3,18 +3,18 @@ import { AIModelProvider } from 'src/types';
 
 export class AnthropicProvider implements AIModelProvider {
     private client: Anthropic;
-    private model: string;
-    private maxTokens: number;
-    private temperature: number;
 
     constructor(
         apiKey: string,
-        model: string,
-        maxTokens: number,
-        temperature: number
+        private model: string,
+        private maxTokens: number,
+        private temperature: number,
+        baseUrl: string|undefined
     ) {
         this.client = new Anthropic({
-            apiKey: apiKey
+            apiKey: apiKey,
+            dangerouslyAllowBrowser: true,
+            baseURL: baseUrl
         });
         this.model = model;
         this.maxTokens = maxTokens;

@@ -182,10 +182,6 @@ export class SettingsEventHandlers {
     async handleApiKeyChange(providerName: string, apiKey: string): Promise<void> {
         try {
             await this.plugin.settings.saveProviderKey(providerName, apiKey);
-            this.callbacks.onProviderUpdated?.(
-                this.plugin.settings.getProviders().find(p => p.name === providerName)!,
-                providerName
-            );
         } catch (error) {
             console.error('Failed to save API key:', error);
         }

@@ -1,7 +1,6 @@
 import { App, Setting, setIcon } from 'obsidian';
 import { ModelConfig, ProviderConfig } from '../../types';
 import { SettingsEventHandlers } from '../handlers/SettingsEventHandlers';
-import { SettingsModalsFactory } from '../modals/SettingsModalsFactory';
 
 export class SettingsUIComponents {
     constructor(private app: App) { }
@@ -100,8 +99,8 @@ export class SettingsUIComponents {
                 text
                     .setPlaceholder('Enter API key')
                     .setValue(provider.apiKey)
-                    .onChange((value) => {
-                        handlers.handleApiKeyChange(provider.name, value);
+                    .onChange(async (value) => {
+                        await handlers.handleApiKeyChange(provider.name, value);
                     });
                 text.inputEl.type = 'password';
                 return text;

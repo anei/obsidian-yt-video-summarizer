@@ -14,7 +14,8 @@ export class ProvidersFactory {
                     apiKey,
                     model,
                     maxTokens,
-                    temperature
+                    temperature,
+                    config.provider.url
                 );
             case 'openai':
                 return new OpenAIProvider(
