@@ -230,6 +230,15 @@ If your plugin does not need CSS, delete this file.
 	margin: 0;
 }
 
+.yt-summarizer-settings__provider-header .clickable-icon {
+	opacity: 0;
+}
+
+.yt-summarizer-settings__provider-header.is-expanded .clickable-icon,
+.yt-summarizer-settings__provider-header:hover .clickable-icon {
+	opacity: 1;
+}
+
 .yt-summarizer-settings__provider-info {
 	display: flex;
 	align-items: center;

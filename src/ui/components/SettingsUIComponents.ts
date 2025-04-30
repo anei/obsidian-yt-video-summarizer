@@ -22,19 +22,21 @@ export class SettingsUIComponents {
         // Right side of header - controls
         const headerControls = header.createDiv({ cls: 'yt-summarizer-settings__provider-controls' });
 
-        // Edit button
-        const editButton = headerControls.createEl('button', {
-            cls: 'clickable-icon yt-summarizer-settings__provider-edit',
-            attr: { 'aria-label': 'Edit provider' }
-        });
-        setIcon(editButton, 'pencil');
+        if (!provider.isBuiltIn) {
+            // Edit button
+            const editButton = headerControls.createEl('button', {
+                cls: 'clickable-icon yt-summarizer-settings__provider-edit',
+                attr: { 'aria-label': 'Edit provider' }
+            });
+            setIcon(editButton, 'pencil');
 
-        // Delete button
-        const deleteButton = headerControls.createEl('button', {
-            cls: 'clickable-icon yt-summarizer-settings__provider-delete',
-            attr: { 'aria-label': 'Delete provider' }
-        });
-        setIcon(deleteButton, 'trash');
+            // Delete button
+            const deleteButton = headerControls.createEl('button', {
+                cls: 'clickable-icon yt-summarizer-settings__provider-delete',
+                attr: { 'aria-label': 'Delete provider' }
+            });
+            setIcon(deleteButton, 'trash');
+        }
 
         // Collapse/expand icon
         const iconEl = headerControls.createDiv({ cls: 'yt-summarizer-settings__collapse-icon' });

@@ -3,8 +3,16 @@ import { StoredProvider } from './types';
 // List of supported Gemini models
 const DEFAULT_GEMINI_MODELS = [
     {
-        name: 'gemini-2.0-flash-exp',
-        displayName: 'Gemini 2.0 Flash Experimental'
+        name: 'gemini-2.5-pro-exp-03-25',
+        displayName: 'Gemini 2.5 Pro Experimental'
+    },
+    {
+        name: 'gemini-2.0-flash',
+        displayName: 'Gemini 2.0 Flash'
+    },
+    {
+        name: 'gemini-2.0-flash-lite',
+        displayName: 'Gemini 2.0 Flash Lite'
     },
     {
         name: 'gemini-1.5-flash',
@@ -64,18 +72,21 @@ export const DEFAULT_PROVIDERS: StoredProvider[] = [
     {
         name: 'Gemini',
         type: 'gemini',
+        isBuiltIn: true,
         apiKey: '',
         models: DEFAULT_GEMINI_MODELS
     },
     {
         name: 'OpenAI',
         type: 'openai',
+        isBuiltIn: true,
         apiKey: '',
         models: DEFAULT_OPENAI_MODELS
     },
     {
         name: 'Anthropic',
         type: 'anthropic',
+        isBuiltIn: true,
         apiKey: '',
         models: DEFAULT_ANTHROPIC_MODELS
     }

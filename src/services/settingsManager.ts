@@ -80,6 +80,7 @@ export class SettingsManager implements PluginSettings {
         return this.settings.providers.map(provider => ({
             name: provider.name,
             type: provider.type,
+            isBuiltIn: provider.isBuiltIn,
             apiKey: provider.apiKey,
             url: provider.url,
             models: provider.models.map(model => this.convertToModelConfig(model, provider))
@@ -348,6 +349,7 @@ export class SettingsManager implements PluginSettings {
             provider: {
                 name: provider.name,
                 type: provider.type,
+                isBuiltIn: provider.isBuiltIn,
                 apiKey: provider.apiKey,
                 url: provider.url,
             }

@@ -36,6 +36,7 @@ export class SettingsEventHandlers {
     }
 
     handleAccordionToggle(accordion: HTMLElement): void {
+        const header = accordion.querySelector('.yt-summarizer-settings__provider-header') as HTMLElement;
         const content = accordion.querySelector('.yt-summarizer-settings__provider-content') as HTMLElement;
         const icon = accordion.querySelector('.yt-summarizer-settings__collapse-icon') as HTMLElement;
 
@@ -45,8 +46,10 @@ export class SettingsEventHandlers {
 
         // Toggle icon class
         if (isExpanded) {
+            header.removeClass('is-expanded');
             icon.removeClass('is-expanded');
         } else {
+            header.addClass('is-expanded');
             icon.addClass('is-expanded');
         }
 

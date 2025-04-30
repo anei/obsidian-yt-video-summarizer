@@ -78,6 +78,7 @@ export class AddProviderModal extends Modal {
                             const newProvider: ProviderConfig = {
                                 name: this.name,
                                 type: this.type as ProviderType,
+                                isBuiltIn: false,
                                 apiKey: this.apiKey,
                                 url: this.url || undefined,
                                 models: []

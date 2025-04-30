@@ -4,6 +4,7 @@ export type ProviderType = "openai" | "anthropic" | "gemini";
 interface BaseProvider {
     name: string;
     type: ProviderType;
+    isBuiltIn: boolean;
     apiKey: string;
     url?: string;
 }
