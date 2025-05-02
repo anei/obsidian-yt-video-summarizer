@@ -9,7 +9,7 @@ Generate AI-powered summaries of YouTube videos directly in Obsidian using Googl
 ## Features
 
 -   🎥 Extract transcripts from YouTube videos
--   🤖 Generate summaries using Gemini AI
+-   🤖 Generate summaries using various LLMs: Gemini, OpenAI, Anthropic (Claude), and other compatible models
 -   📝 Create structured notes with key points
 -   🔍 Identify and explain technical terms
 -   📊 Format summaries with metadata and tags
@@ -24,7 +24,11 @@ Generate AI-powered summaries of YouTube videos directly in Obsidian using Googl
 ## Requirements
 
 -   Obsidian v0.15.0+
--   Google Gemini API key ([Get one here](https://aistudio.google.com/app/apikey))
+-   API key for one of the supported LLM providers:
+    -   Gemini API key ([Get one here](https://aistudio.google.com/app/apikey))
+    -   OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+    -   Anthropic API key ([Get one here](https://console.anthropic.com/settings/keys))
+    -   Key for any LLM provider, offering OpenAI or Antropic compatible API
 
 ## Configuration
 

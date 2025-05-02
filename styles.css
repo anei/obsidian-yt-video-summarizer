@@ -234,7 +234,7 @@ If your plugin does not need CSS, delete this file.
 	opacity: 0;
 }
 
-.yt-summarizer-settings__provider-header.is-expanded .clickable-icon,
+.yt-summarizer-settings__provider-accordion.is-expanded .clickable-icon,
 .yt-summarizer-settings__provider-header:hover .clickable-icon {
 	opacity: 1;
 }
@@ -261,13 +261,18 @@ If your plugin does not need CSS, delete this file.
 	justify-content: center;
 }
 
-.yt-summarizer-settings__collapse-icon.is-expanded {
+.is-expanded .yt-summarizer-settings__collapse-icon {
 	transform: rotate(180deg);
 }
 
 /* Provider Content */
 .yt-summarizer-settings__provider-content {
 	padding: var(--size-4-4);
+	display: none;
+}
+
+.yt-summarizer-settings__provider-accordion.is-expanded .yt-summarizer-settings__provider-content {
+	display: block;
 }
 
 /* Models List */

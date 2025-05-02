@@ -42,32 +42,14 @@ export class SettingsEventHandlers {
 
         if (!content || !icon) return;
 
-        const isExpanded = content.style.display !== 'none';
-
-        // Toggle icon class
-        if (isExpanded) {
-            header.removeClass('is-expanded');
-            icon.removeClass('is-expanded');
-        } else {
-            header.addClass('is-expanded');
-            icon.addClass('is-expanded');
-        }
-
-        // Toggle content
-        content.style.display = isExpanded ? 'none' : 'block';
+        const isExpanded = accordion.hasClass('is-expanded');
+        accordion.toggleClass('is-expanded', !isExpanded);
 
         // Update all other accordions
         const allAccordions = document.querySelectorAll('.yt-summarizer-settings__provider-accordion');
         allAccordions.forEach(otherAccordion => {
             if (otherAccordion !== accordion) {
-                const otherContent = otherAccordion.querySelector('.yt-summarizer-settings__provider-content') as HTMLElement;
-                const otherIcon = otherAccordion.querySelector('.yt-summarizer-settings__collapse-icon') as HTMLElement;
-                if (otherContent) {
-                    otherContent.style.display = 'none';
-                }
-                if (otherIcon) {
-                    otherIcon.removeClass('is-expanded');
-                }
+            otherAccordion.removeClass('is-expanded')
             }
         });
     }

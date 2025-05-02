@@ -44,7 +44,6 @@ export class SettingsUIComponents {
 
         // Content section
         const content = accordion.createDiv({ cls: 'yt-summarizer-settings__provider-content' });
-        content.style.display = 'none';
 
         return accordion;
     }

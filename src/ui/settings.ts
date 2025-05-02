@@ -222,12 +222,7 @@ export class SettingsTab extends PluginSettingTab {
         if (openedProviderName) {
             const newAccordion = document.querySelector(`[data-provider-name="${openedProviderName}"]`);
             if (newAccordion) {
-                const content = newAccordion.querySelector('.yt-summarizer-settings__provider-content') as HTMLElement;
-                const icon = newAccordion.querySelector('.yt-summarizer-settings__collapse-icon');
-                if (content && icon) {
-                    content.style.display = 'block';
-                    icon.addClass('is-expanded');
-                }
+                newAccordion.addClass('is-expanded');
             }
         }
     }
