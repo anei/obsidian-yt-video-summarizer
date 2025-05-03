@@ -30,10 +30,6 @@ const DEFAULT_GEMINI_MODELS = [
 
 const DEFAULT_OPENAI_MODELS = [
     {
-        name: 'gpt-3.5-turbo',
-        displayName: 'GPT-3.5 Turbo'
-    },
-    {
         name: 'gpt-4.1-nano',
         displayName: 'GPT-4.1 Nano'
     },
@@ -46,8 +42,8 @@ const DEFAULT_OPENAI_MODELS = [
         displayName: 'GPT-4.1'
     },
     {
-        name: 'o4-mini',
-        displayName: 'o4 Mini: reasoning model, more expensive'
+        name: 'gpt-4o-mini',
+        displayName: 'GPT-4o Mini'
     },
 ];
 

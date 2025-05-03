@@ -178,8 +178,8 @@ export class SettingsTab extends PluginSettingTab {
 
         // Max Tokens Setting
         new Setting(containerEl)
-            .setName('Max tokens')
-            .setDesc('Maximum number of tokens to generate')
+            .setName('Maximum number of tokens to generate')
+            .setDesc('More tokens allow for longer summaries, but may exceed provider limits')
             .addText(text =>
                 text
                     .setPlaceholder('Enter max tokens')
@@ -192,7 +192,12 @@ export class SettingsTab extends PluginSettingTab {
         // Temperature Setting
         new Setting(containerEl)
             .setName('Temperature')
-            .setDesc('Temperature parameter for text generation (0.0 to 1.0)')
+            .setDesc('Controls randomness in generation (0.0 to 1.0, or up to 2.0 for OpenAI)')
+            .addExtraButton(button => {
+                button
+                    .setIcon('help-circle')
+                    .setTooltip('Higher temperature values produce more creative and varied results, while lower values make output more deterministic and focused. For manually added providers, refer to provider documentation for supported ranges.');
+            })
             .addText(text =>
                 text
                     .setPlaceholder('Enter temperature')
